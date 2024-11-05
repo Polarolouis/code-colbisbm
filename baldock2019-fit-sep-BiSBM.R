@@ -2,10 +2,14 @@ library(sbm)
 library(here)
 library(ggplot2) # For plotting
 library(patchwork) # For arranging plots
+<<<<<<< HEAD
 library(dplyr)
 library(tikzDevice) # For saving plots as .tex files
 library(knitr) # For kable
 library(colSBM) # For the colSBM model
+=======
+library(tikzDevice) # For saving plots as .tex files
+>>>>>>> Adding first data
 
 # Set up tikzDevice to use standalone document class
 options(tikzDocumentDeclaration = "\\documentclass[10pt]{standalone}")
@@ -15,6 +19,7 @@ incidence_matrices <- readRDS(here("data", "baldock2019-binary-matrices.Rds"))
 
 # Fit the model
 set.seed(123)
+<<<<<<< HEAD
 fit_list <- lapply(seq_along(incidence_matrices), function(idx) {
     # fit <- estimateBipartiteSBM(
     #     netMat = incidence_matrix,
@@ -43,6 +48,14 @@ fit_list <- lapply(seq_along(incidence_matrices), function(idx) {
     )
     refit$optimize()
     return(refit)
+=======
+fit_list <- lapply(incidence_matrices, function(incidence_matrix) {
+    fit <- estimateBipartiteSBM(
+        netMat = incidence_matrix,
+        model = "bernoulli", dimLabels = c(row = "pollinators", col = "plants"),
+    )
+    return(fit)
+>>>>>>> Adding first data
 })
 
 short_names <- c("Bristol", "Edinburgh", "Leeds", "Reading")
@@ -51,6 +64,7 @@ if (!dir.exists(here("figures", "applications", "baldock"))) {
     dir.create(here("figures", "applications", "baldock"), recursive = TRUE)
 }
 
+<<<<<<< HEAD
 plot_lbm_with_con <- function(fit, m = 1, title = NULL, oRow = NULL, oCol = NULL) {
     if (is.null(oRow)) {
         oRow <- order(fit$alpha %*% matrixStats::rowMeans2(sapply(fit$pi, function(pi) pi[[2]])), decreasing = TRUE)
@@ -86,6 +100,8 @@ plot_lbm_with_con <- function(fit, m = 1, title = NULL, oRow = NULL, oCol = NULL
 }
 
 
+=======
+>>>>>>> Adding first data
 # Save the plots
 lapply(seq_along(fit_list), function(i) {
     pdf(
@@ -96,6 +112,7 @@ lapply(seq_along(fit_list), function(i) {
         )),
         family = "Times"
     )
+<<<<<<< HEAD
 
     print(plot_lbm_with_con(fit_list[[i]], title = short_names[i]))
     dev.off()
@@ -169,3 +186,20 @@ for (i in 1:4) {
         )
     }
 }
+=======
+    print(plot(fit_list[[i]], type = "data") +
+        labs(x = "Plants", y = "Pollinators") +
+        ggtitle(short_names[i]) +
+        theme(
+            strip.text.y = element_blank(),
+            strip.text.x = element_blank(),
+            panel.border = element_rect(
+                colour = "black",
+                fill = NA,
+                linewidth = 1
+            ),
+            text = element_text(size = 30)
+        ))
+    dev.off()
+})
+>>>>>>> Adding first data
