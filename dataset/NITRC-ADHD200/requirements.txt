@@ -1,0 +1,6 @@
+nilearn
+matplotlib
+networkx
+numpy
+pandas
+IPython
