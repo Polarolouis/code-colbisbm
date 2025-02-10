@@ -1,5 +1,7 @@
-necessary_packages <- c("remotes", "colSBM")
+necessary_packages <- c("remotes", "colSBM", "future.apply", "future.callr")
 library(here)
+library(future.apply)
+library(future.callr)
 
 options(future.globals.maxSize = Inf)
 
@@ -7,13 +9,13 @@ if (!all(necessary_packages %in% installed.packages())) {
     install.packages(necessary_packages[-length(necessary_packages)])
 }
 suppressPackageStartupMessages(library("colSBM"))
-future::plan(future::multisession())
+plan(callr(workers = 64L))
 
 set.seed(0L)
 
 
-nr <- 75
-nc <- 75
+nr <- 120
+nc <- 120
 
 pi <- matrix(c(0.2, 0.3, 0.5), nrow = 1, byrow = TRUE)
 rho <- matrix(c(0.2, 0.3, 0.5), nrow = 1, byrow = TRUE)
@@ -198,22 +200,18 @@ with_progress({
 
             netids <- rep(c("as", "cp", "dis"), each = 3)
 
-            list_collection <- clusterize_bipartite_networks_graphon(
+            list_collection <- clusterize_bipartite_networks(
                 netlist = incidence_matrices,
                 net_id = netids,
                 nb_run = 3L,
                 colsbm_model = current_model,
                 global_opts = list(
-                    nb_cores = parallelly::availableCores(omit = 1L), verbosity = 2,
-                    plot_details = 0 # ,
-                    # parallelization_vector = c(FALSE, FALSE, FALSE)
+                    backend = "no_mc",
+                    verbosity = 1L
                 )
             )
 
-            best_partitions <- unlist(tail(list_collection, 1))
-            if (!is(best_partitions, "list")) {
-                best_partitions <- list(best_partitions)
-            }
+            best_partitions <- list_collection
             clustering <- unlist(lapply(seq_along(best_partitions), function(col_idx) {
                 setNames(
                     rep(col_idx, best_partitions[[col_idx]]$M),
