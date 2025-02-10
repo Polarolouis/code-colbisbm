@@ -10,6 +10,7 @@ library(future.apply)
 library(future.callr)
 library(progressr)
 suppressPackageStartupMessages(library("colSBM"))
+handlers(global = TRUE)
 plan(callr(workers = 64L))
 
 set.seed(0L)
