@@ -3,6 +3,9 @@ library(future.apply)
 library(future.callr)
 library(here)
 library(progressr)
+# library(animint2)
+handlers(global = TRUE)
+handlers("cli")
 # Load baldock2019 data
 incidence_matrices <- readRDS(here("data", "baldock2019-binary-matrices.Rds"))
 
@@ -44,3 +47,23 @@ if (!file.exists(here("data", "baldock-iid-pi-rho-pirho.Rds"))) {
 } else {
     fit_list <- readRDS(here("data", "baldock-iid-pi-rho-pirho.Rds"))
 }
+
+fit_list <- lapply(fit_list, function(fit) {
+    fit$best_fit$net_id <- c("Bristol", "Edinburgh", "Leeds", "Reading")
+    fit
+})
+
+library(ggplot2)
+
+models <- c("iid", "pi", "rho", "pirho")
+
+lapply(seq_along(models), function(id) {
+    pdf(file = here("figures", "applications", "baldock", paste0("baldock2019-joint-", models[id], ".pdf")))
+    print(plot(fit_list[[id]]$best_fit, type = "meso", mixture = TRUE, values = TRUE) +
+        ggtitle(models[id])) + theme_minimal()
+    dev.off()
+})
+
+patchwork::wrap_plots(lapply(c("BICL", "ICL", "vbound"), function(criterion) {
+    plot(fit_list[[1]], criterion = criterion) + ggtitle(criterion)
+}), ncol = 2)
