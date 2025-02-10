@@ -1,13 +1,14 @@
-necessary_packages <- c("remotes", "colSBM", "future.apply", "future.callr")
-library(here)
-library(future.apply)
-library(future.callr)
+necessary_packages <- c("remotes", "colSBM", "future.apply", "future.callr", "progressr")
 
 options(future.globals.maxSize = Inf)
 
 if (!all(necessary_packages %in% installed.packages())) {
-    install.packages(necessary_packages[-length(necessary_packages)])
+    install.packages(necessary_packages)
 }
+library(here)
+library(future.apply)
+library(future.callr)
+library(progressr)
 suppressPackageStartupMessages(library("colSBM"))
 plan(callr(workers = 64L))
 
