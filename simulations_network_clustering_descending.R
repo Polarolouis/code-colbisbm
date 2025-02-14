@@ -212,7 +212,7 @@ with_progress(
                     nb_run = 3L,
                     colsbm_model = current_model,
                     global_opts = list(
-                        backend = "no_mc",
+                        backend = "future",
                         verbosity = 1L
                     ),
                     fit_opts = list(max_vem_steps = 3000L)
