@@ -11,17 +11,20 @@ library(future.callr)
 library(progressr)
 suppressPackageStartupMessages(library("colSBM"))
 handlers(global = TRUE)
-plan(callr(workers = 64L))
+plan(list(
+    tweak(callr, workers = parallelly::availableCores(omit = 2L) / 2),
+    tweak(callr, workers = 2L)
+))
 
 set.seed(0L)
 
 
-nr <- 120
-nc <- 120
+nr <- 75
+nc <- 75
 
 pi <- matrix(c(0.2, 0.3, 0.5), nrow = 1, byrow = TRUE)
 rho <- matrix(c(0.2, 0.3, 0.5), nrow = 1, byrow = TRUE)
-repetitions <- seq.int(30)
+repetitions <- seq.int(3)
 epsilons <- seq(0.1, 0.4, by = 0.1)
 models <- c("iid", "pi", "rho", "pirho")
 
@@ -211,7 +214,8 @@ with_progress(
                     global_opts = list(
                         backend = "no_mc",
                         verbosity = 1L
-                    )
+                    ),
+                    fit_opts = list(max_vem_steps = 3000L)
                 )
 
                 best_partitions <- list_collection
