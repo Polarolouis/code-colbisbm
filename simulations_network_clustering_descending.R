@@ -12,8 +12,8 @@ library(progressr)
 suppressPackageStartupMessages(library("colSBM"))
 handlers(global = TRUE)
 plan(list(
-    tweak(callr, workers = parallelly::availableCores(omit = 2L) / 2),
-    tweak(callr, workers = 2L)
+    tweak(callr, workers = parallelly::availableCores(omit = 2L) / 3L),
+    tweak(callr, workers = 3L)
 ))
 
 set.seed(0L)
@@ -24,7 +24,7 @@ nc <- 75
 
 pi <- matrix(c(0.2, 0.3, 0.5), nrow = 1, byrow = TRUE)
 rho <- matrix(c(0.2, 0.3, 0.5), nrow = 1, byrow = TRUE)
-repetitions <- seq.int(3)
+repetitions <- seq.int(10)
 epsilons <- seq(0.1, 0.4, by = 0.1)
 models <- c("iid", "pi", "rho", "pirho")
 
