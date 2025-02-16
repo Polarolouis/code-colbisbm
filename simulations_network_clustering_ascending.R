@@ -215,6 +215,7 @@ with_progress(
                         backend = "future",
                         verbosity = 1L
                     ),
+                    fusions_per_step = 1L,
                     fit_opts = list(max_vem_steps = 3000L)
                 )
 
