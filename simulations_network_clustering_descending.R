@@ -219,6 +219,10 @@ with_progress(
                 )
 
                 best_partitions <- list_collection
+                bicl_vec <- sapply(seq_along(best_partitions), function(col_idx) {
+                    return(best_partitions[[col_idx]]$BICL)
+                })
+                bicl <- ifelse(length(bicl_vec) > 1, sum(bicl_vec), ifelse(length(bicl_vec) == 1, bicl_vec, NA))
                 clustering <- unlist(lapply(seq_along(best_partitions), function(col_idx) {
                     setNames(
                         rep(col_idx, best_partitions[[col_idx]]$M),
@@ -228,7 +232,7 @@ with_progress(
                 # ARI computation
                 clustering <- clustering[order(names(clustering))]
                 ari <- aricode::ARI(rep(c(1, 2, 3), each = 3), clustering)
-                out <- data.frame(epsilon = eps, model = current_model, ARI = ari)
+                out <- data.frame(epsilon = eps, model = current_model, ARI = ari, BICL = bicl)
 
                 saveRDS(out, file = file.path(
                     temp_folder,
