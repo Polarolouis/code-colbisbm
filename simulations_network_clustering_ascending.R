@@ -219,7 +219,7 @@ with_progress(
                     fit_opts = list(max_vem_steps = 3000L)
                 )
 
-                best_partitions <- tail(clust_out$fusion_history)[[1]]
+                best_partitions <- tail(clust_out$fusion_history, 1)[[1]]
                 bicl_vec <- sapply(seq_along(best_partitions), function(col_idx) {
                     return(best_partitions[[col_idx]]$best_fit$BICL)
                 })
