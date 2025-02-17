@@ -221,7 +221,7 @@ with_progress(
 
                 best_partitions <- tail(clust_out$fusion_history)[[1]]
                 bicl_vec <- sapply(seq_along(best_partitions), function(col_idx) {
-                    return(best_partitions[[col_idx]]$BICL)
+                    return(best_partitions[[col_idx]]$best_fit$BICL)
                 })
                 bicl <- ifelse(length(bicl_vec) > 1, sum(bicl_vec), ifelse(length(bicl_vec) == 1, bicl_vec, NA))
                 clustering <- unlist(lapply(seq_along(best_partitions), function(col_idx) {
