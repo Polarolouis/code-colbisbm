@@ -59,7 +59,7 @@ with_progress(
                 eps <- conditions[s, ]$epsilons
                 current_pi <- pi
                 current_rho <- rho
-                current_model <- conditions[s, ]$models
+                current_model <- "pirho"
 
                 cli::cli_text("Starting condition {s} on {nrow(conditions)}")
 
