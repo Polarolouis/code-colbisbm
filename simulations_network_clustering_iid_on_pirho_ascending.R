@@ -38,12 +38,12 @@ if (!dir.exists(save_folder)) {
 }
 
 save_filename <- paste0(
-    "9collection_data_clustering_",
+    "9collection_data_clustering_iid_on_pirho_asc_",
     format(Sys.time(), "%d-%m-%y-%H-%M-%S"),
     ".Rds"
 )
 
-temp_folder <- file.path(save_folder, paste0("tmp", format(Sys.time(), "%d-%m-%y-%H-%M-%S")))
+temp_folder <- file.path(save_folder, paste0("tmp-asc", format(Sys.time(), "%d-%m-%y-%H-%M-%S")))
 
 if (!dir.exists(temp_folder)) {
     dir.create(temp_folder, recursive = TRUE)
