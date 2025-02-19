@@ -22,8 +22,8 @@ set.seed(0L)
 nr <- 75
 nc <- 75
 
-pi <- matrix(c(0.2, 0.3, 0.5), nrow = 1, byrow = TRUE)
-rho <- matrix(c(0.2, 0.3, 0.5), nrow = 1, byrow = TRUE)
+pi <- matrix(c(0.05, 0.3, 0.65), nrow = 1, byrow = TRUE)
+rho <- matrix(c(0.1, 0.8, 0.1), nrow = 1, byrow = TRUE)
 repetitions <- seq.int(10)
 epsilons <- seq(0.1, 0.4, by = 0.1)
 models <- c("iid", "pi", "rho", "pirho")
