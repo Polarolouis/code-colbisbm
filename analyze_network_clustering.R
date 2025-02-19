@@ -8,6 +8,7 @@ library("knitr")
 library("kableExtra")
 library("stringr")
 library("here")
+library("latex2exp")
 library("tikzDevice")
 options(tikzDocumentDeclaration = "\\documentclass[10pt]{standalone}")
 
@@ -19,12 +20,15 @@ df_netclust <- readRDS("simulations/clustering/9collection/descending.Rds")
 df_netclust$clust <- "descending"
 df_ascending <- readRDS("simulations/clustering/9collection/ascending.Rds")
 df_ascending$clust <- "ascending"
+df_iid_on_pirho <- readRDS("simulations/clustering/9collection/iid_on_pirho-1.Rds")
+df_iid_on_pirho$clust <- "descending"
 
-df_netclust <- rbind(df_netclust, df_ascending)
+df_netclust <- rbind(df_netclust, df_ascending, df_iid_on_pirho)
 
 df_netclust$model <- factor(df_netclust$model, levels = c(
     "iid", "pi",
-    "rho", "pirho"
+    "rho", "pirho",
+    "iid_on_pirho"
 ))
 
 df_netclust$clust <- factor(df_netclust$clust, levels = c(
@@ -36,9 +40,11 @@ df_netclust$model <- df_netclust$model |>
         "pi" ~ "$\\pi$",
         "rho" ~ "$\\rho$",
         "pirho" ~ "$\\pi\\rho$",
+        "iid_on_pirho" ~ "$iid$ on $\\pi\\rho$",
         .ptype = factor(levels = c(
             "$iid$", "$\\pi$",
-            "$\\rho$", "$\\pi\\rho$"
+            "$\\rho$", "$\\pi\\rho$",
+            "$iid$ on $\\pi\\rho$"
         ))
     )
 
@@ -50,7 +56,7 @@ ari_plot <- ggplot(df_netclust) +
     aes(x = as.factor(epsilon), y = ARI) +
     scale_color_okabe_ito(order = c(1L, 8L)) +
     scale_fill_okabe_ito(order = 2L:9L, alpha = 0.5) +
-    xlab("$\\epsilon$") +
+    xlab("$\\epsilon_{\\alpha}$") +
     guides(
         fill = guide_legend(title = "Model"),
         color = guide_legend(title = "Clustering")
@@ -63,7 +69,7 @@ bicl_plot <- ggplot(df_netclust) +
     aes(x = as.factor(epsilon), y = BICL) +
     scale_color_okabe_ito(order = c(1L, 8L)) +
     scale_fill_okabe_ito(order = 2L:9L, alpha = 0.5) +
-    xlab("$\\epsilon$") +
+    xlab("$\\epsilon_{\\alpha}$") +
     guides(
         fill = guide_legend(title = "Model"),
         color = guide_legend(title = "Clustering")
@@ -89,16 +95,18 @@ if (!dir.exists(output_tikz_folder)) {
 # print(ari_plot)
 # dev.off()
 
-pdf(
-    file = file.path(output_tikz_folder, "ari-clustering-descending.pdf"), width = 5L,
-    height = 3
+png(
+    file = file.path(output_tikz_folder, "ari-clustering-descending.png"),
+    width = 960,
+    height = 960
 )
 print(ari_plot)
 dev.off()
 
-pdf(
-    file = file.path(output_tikz_folder, "bicl-clustering-descending.pdf"), width = 5L,
-    height = 5L
+png(
+    file = file.path(output_tikz_folder, "bicl-clustering-descending.png"),
+    width = 960,
+    height = 960
 )
 print(bicl_plot)
 dev.off()
