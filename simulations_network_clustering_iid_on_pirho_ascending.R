@@ -12,8 +12,8 @@ library(progressr)
 suppressPackageStartupMessages(library("colSBM"))
 handlers(global = TRUE)
 plan(list(
-    tweak(callr, workers = parallelly::availableCores(omit = 2L) / 3L),
-    tweak(callr, workers = 3L)
+    tweak(callr, workers = parallelly::availableCores(omit = 2L) / 9L),
+    tweak(callr, workers = 9L)
 ))
 
 set.seed(0L)
@@ -26,7 +26,7 @@ pi <- matrix(c(0.2, 0.3, 0.5), nrow = 1, byrow = TRUE)
 rho <- matrix(c(0.2, 0.3, 0.5), nrow = 1, byrow = TRUE)
 repetitions <- seq.int(10)
 epsilons <- seq(0.1, 0.4, by = 0.1)
-models <- c("pirho")
+models <- c("iid") # , "pi", "rho", "pirho" not implemented
 
 save_folder <- here(
     "simulations", "clustering",
@@ -38,12 +38,12 @@ if (!dir.exists(save_folder)) {
 }
 
 save_filename <- paste0(
-    "9collection_data_clustering_iid_on_pirho_",
+    "9collection_data_clustering_",
     format(Sys.time(), "%d-%m-%y-%H-%M-%S"),
     ".Rds"
 )
 
-temp_folder <- file.path(save_folder, paste0("tmp-iid-on-pirho", format(Sys.time(), "%d-%m-%y-%H-%M-%S")))
+temp_folder <- file.path(save_folder, paste0("tmp", format(Sys.time(), "%d-%m-%y-%H-%M-%S")))
 
 if (!dir.exists(temp_folder)) {
     dir.create(temp_folder, recursive = TRUE)
@@ -59,7 +59,7 @@ with_progress(
                 eps <- conditions[s, ]$epsilons
                 current_pi <- pi
                 current_rho <- rho
-                current_model <- "pirho"
+                current_model <- "iid"
 
                 cli::cli_text("Starting condition {s} on {nrow(conditions)}")
 
@@ -206,7 +206,7 @@ with_progress(
 
                 netids <- rep(c("as", "cp", "dis"), each = 3)
 
-                list_collection <- clusterize_bipartite_networks(
+                clust_out <- clusterize_bipartite_networks_graphon(
                     netlist = incidence_matrices,
                     net_id = netids,
                     nb_run = 3L,
@@ -215,12 +215,13 @@ with_progress(
                         backend = "future",
                         verbosity = 1L
                     ),
+                    fusions_per_step = 1L,
                     fit_opts = list(max_vem_steps = 3000L)
                 )
 
-                best_partitions <- list_collection
+                best_partitions <- tail(clust_out$fusion_history, 1)[[1]]
                 bicl_vec <- sapply(seq_along(best_partitions), function(col_idx) {
-                    return(best_partitions[[col_idx]]$BICL)
+                    return(best_partitions[[col_idx]]$best_fit$BICL)
                 })
                 bicl <- ifelse(length(bicl_vec) > 1, sum(bicl_vec), ifelse(length(bicl_vec) == 1, bicl_vec, NA))
                 clustering <- unlist(lapply(seq_along(best_partitions), function(col_idx) {
@@ -232,7 +233,7 @@ with_progress(
                 # ARI computation
                 clustering <- clustering[order(names(clustering))]
                 ari <- aricode::ARI(rep(c(1, 2, 3), each = 3), clustering)
-                out <- data.frame(epsilon = eps, model = "iid_on_pirho", ARI = ari, BICL = bicl)
+                out <- data.frame(epsilon = eps, model = current_model, ARI = ari, BICL = bicl)
 
                 saveRDS(out, file = file.path(
                     temp_folder,
@@ -241,7 +242,7 @@ with_progress(
 
                 return(out)
             },
-            future.seed = TRUE
+            future.seed = NULL
         )
     },
     delay_stdout = TRUE,
