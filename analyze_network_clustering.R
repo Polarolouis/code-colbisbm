@@ -20,10 +20,10 @@ df_netclust <- readRDS("simulations/clustering/9collection/descending.Rds")
 df_netclust$clust <- "descending"
 df_ascending <- readRDS("simulations/clustering/9collection/ascending.Rds")
 df_ascending$clust <- "ascending"
-df_iid_on_pirho <- readRDS("simulations/clustering/9collection/iid_on_pirho-1.Rds")
+df_iid_on_pirho <- readRDS("simulations/clustering/9collection/iid_on_pirho.Rds")
 df_iid_on_pirho$clust <- "descending"
 
-df_netclust <- rbind(df_netclust, df_ascending, df_iid_on_pirho)
+df_netclust <- rbind(df_netclust, df_iid_on_pirho)
 
 df_netclust$model <- factor(df_netclust$model, levels = c(
     "iid", "pi",
