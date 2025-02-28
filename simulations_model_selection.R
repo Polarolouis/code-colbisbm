@@ -66,9 +66,15 @@ file_save <- file.path(main_dir, paste0(
     "model_selection", start_time, "_.Rds"
 ))
 
-
+missing_conditions_file <- file.path(main_dir, "missing_conditions.Rds")
 tictoc::tic()
-row_conditions <- seq_len(nrow(conditions))
+if (file.exists(missing_conditions_file)) {
+    message("Resuming from missing conditions.")
+    row_conditions <- readRDS(missing_conditions_file)
+} else {
+    message("Starting from scratch.")
+    row_conditions <- seq_len(nrow(conditions))
+}
 results <- future_lapply(row_conditions, function(s) {
     start_time_condition <- Sys.time()
     epsilon_pi <- conditions[s, ]$epsilon_pi
