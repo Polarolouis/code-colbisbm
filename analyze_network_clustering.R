@@ -23,7 +23,7 @@ df_ascending$clust <- "ascending"
 df_iid_on_pirho <- readRDS("simulations/clustering/9collection/iid_on_pirho.Rds")
 df_iid_on_pirho$clust <- "descending"
 
-df_netclust <- rbind(df_netclust, df_iid_on_pirho)
+df_netclust <- rbind(df_netclust, df_ascending, df_iid_on_pirho)
 
 df_netclust$model <- factor(df_netclust$model, levels = c(
     "iid", "pi",
@@ -102,7 +102,7 @@ png(
 )
 print(ari_plot)
 dev.off()
-
+ari_plot
 png(
     file = file.path(output_tikz_folder, "bicl-clustering-descending.png"),
     width = 960,
@@ -110,3 +110,4 @@ png(
 )
 print(bicl_plot)
 dev.off()
+bicl_plot
