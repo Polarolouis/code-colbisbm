@@ -47,7 +47,7 @@ conditions <- expand.grid(
     rep = seq_len(n_reps)
 )
 
-plan(list(tweak("callr", workers = floor(parallelly::availableCores(omit = 1L) / rep_clustering * 3L)), tweak("callr", workers = 5L), tweak("callr", workers = 3L)))
+plan(list(tweak("callr", workers = floor(parallelly::availableCores(omit = 1L) / (rep_clustering * 3L))), tweak("callr", workers = 5L), tweak("callr", workers = 3L)))
 
 set.seed(1234)
 df_list <- future_lapply(seq_len(nrow(conditions)), function(s) {
@@ -100,8 +100,6 @@ df_list <- future_lapply(seq_len(nrow(conditions)), function(s) {
         clust[c("cluster", "elapsed_time")]
     }, future.seed = TRUE)
 
-    # TODO Add partial saving of results
-
     # Compute ARI to ground truth
     ground_truth <- rep(c(1, 2), each = M)
     ari_results <- sapply(clustering_results, function(res) {
@@ -112,14 +110,25 @@ df_list <- future_lapply(seq_len(nrow(conditions)), function(s) {
         res$elapsed_time
     })
 
+    ari_other_to_other <- outer(seq(1, (2 * rep_clustering)), 1:(2 * rep_clustering), Vectorize(function(i, j) {
+        ari <- ARI(clustering_results[[i]]$cluster, clustering_results[[j]]$cluster)
+    }))
+    colnames(ari_other_to_other) <- paste("ari_to", type_clust,
+        rep(seq(1, rep_clustering), each = 2),
+        sep = "."
+    )
+    ari_other_to_other <- as.data.frame(ari_other_to_other)
+
+
     current_dataset_df <- data.frame(
         epsilon = eps,
         condition_rep = rep,
-        clustering_rep = seq(1, rep_clustering),
+        clustering_rep = rep(seq(1, rep_clustering), each = 2),
         type = type_clust,
-        ari = ari_results,
+        ari_truth = ari_results,
         elapsed_time = elapsed_time
     )
+    current_dataset_df <- cbind(current_dataset_df, ari_other_to_other)
     saveRDS(current_dataset_df, file = file.path(temp_path, paste0("simulations_clustering_noisy_links_", start_time, "_", s, ".rds")))
     message("Finished simulation ", s, " with epsilon = ", eps, " and rep = ", rep)
 }, future.seed = TRUE)
