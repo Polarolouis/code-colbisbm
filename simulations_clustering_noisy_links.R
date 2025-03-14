@@ -53,7 +53,7 @@ set.seed(1234)
 df_list <- future_lapply(seq_len(nrow(conditions)), function(s) {
     eps <- conditions[s, "epsilon"]
     rep <- conditions[s, "rep"]
-
+    message("Starting simulation ", s, " with epsilon = ", eps, " and rep = ", rep)
     coll_type1 <- generate_bipartite_collection(
         nr = nr,
         nc = nc,
@@ -121,6 +121,7 @@ df_list <- future_lapply(seq_len(nrow(conditions)), function(s) {
         elapsed_time = elapsed_time
     )
     saveRDS(current_dataset_df, file = file.path(temp_path, paste0("simulations_clustering_noisy_links_", start_time, "_", s, ".rds")))
+    message("Finished simulation ", s, " with epsilon = ", eps, " and rep = ", rep)
 }, future.seed = TRUE)
 
 df <- do.call(rbind, df_list)
