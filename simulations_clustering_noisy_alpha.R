@@ -47,7 +47,10 @@ conditions <- expand.grid(
     rep = seq_len(n_reps)
 )
 
-plan(list(tweak("callr", workers = floor(parallelly::availableCores(omit = 1L) / (rep_clustering * 3L))), tweak("callr", workers = rep_clustering), tweak("callr", workers = 3L)))
+plan(list(
+    tweak("callr", workers = floor(parallelly::availableCores(omit = 1L) / rep_clustering)),
+    tweak("callr", workers = rep_clustering)
+))
 
 set.seed(1234)
 df_list <- future_lapply(seq_len(nrow(conditions)), function(s) {
