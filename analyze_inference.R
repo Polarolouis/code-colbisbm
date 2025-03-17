@@ -97,133 +97,7 @@ dataframe_per_model <- function(model) {
         select(epsilon_alpha, starts_with(paste0(model, "_")))
 }
 
-## ----per_model_table, echo = FALSE, results='asis', message=FALSE, warning = FALSE---------------------------------------------------------------------------------------------------
-
-dir.create(here(
-    "mia-rapport-2024", "tables", "simulations",
-    "inference"
-), recursive = TRUE)
-
-for (model in c("sep", "iid", "pi", "rho", "pirho")) {
-    kable_ari_colnames <- c(
-        "$\\eps[\\alpha]$", # "BIC-L",
-        "$\\overline{\\text{ARI}}_{1}$",
-        "$\\overline{\\text{ARI}}_{2}$", "$\\text{ARI}_{1}$", "$\\text{ARI}_{2}$"
-    )
-    model_name <- model
-    if (model != "sep") {
-        kable_blocrecov_colnames <- c(
-            "$\\eps[\\alpha]$",
-            "$\\mathbbb{1}_{\\widehat{Q_1}<Q_1}$",
-            "$\\mathbbb{1}_{\\widehat{Q_1}=Q_1}$",
-            "$\\mathbbb{1}_{\\widehat{Q_1}>Q_1}$",
-            "$\\mathbbb{1}_{\\widehat{Q_2}<Q_2}$",
-            "$\\mathbbb{1}_{\\widehat{Q_2}=Q_2}$",
-            "$\\mathbbb{1}_{\\widehat{Q_2}>Q_2}$"
-        )
-    }
-    if (model == "pirho") {
-        model_name <- "$\\pi\\rho$"
-    } else {
-        if (model != "iid" && model != "sep") {
-            model_name <- paste0("$\\", model, "$")
-        } else {
-            model_name <- paste0("$", model, "$")
-        }
-    }
-    full_dataframe <- dataframe_per_model(model)
-    ari_dataframe <- full_dataframe |>
-        group_by(epsilon_alpha) |>
-        select(-contains(c("Q1", "Q2")))
-    blocrecov_dataframe <- full_dataframe |>
-        group_by(epsilon_alpha) |>
-        select(contains(c("Q1", "Q2")))
-
-    ari_kable <- kable(ari_dataframe,
-        escape = FALSE,
-        booktabs = TRUE,
-        digits = 2,
-        caption = paste0(
-            "\\label{subtab:ari_per_model_", model,
-            "}Quality metrics for ",
-            ifelse(model != "sep", paste0(model_name, "$\\text{-colBiSBM}$"), "$sep\\text{-BiSBM}$")
-        ),
-        col.names = kable_ari_colnames,
-        format = "latex"
-    ) |>
-        kable_styling(latex_options = "scale_down")
-    if (model != "sep") {
-        blocrecov_kable <- kable(blocrecov_dataframe,
-            escape = FALSE,
-            booktabs = TRUE,
-            digits = 2,
-            caption = paste0(
-                "\\label{subtab:blocrecov_per_model_", model,
-                "}Bloc recovery for ",
-                ifelse(model != "sep", paste0(model_name, "$\\text{-colBiSBM}$"), "$sep\\text{-BiSBM}$")
-            ),
-            col.names = kable_blocrecov_colnames,
-            format = "latex"
-        ) |>
-            kable_styling(latex_options = "scale_down")
-        both_kables <- kables(list(ari_kable, blocrecov_kable))
-    } else {
-        both_kables <- ari_kable
-    }
-    both_kables <- both_kables |>
-        gsub("\\begin{table}", "\\begin{subtable}{\\textwidth}", x = _, fixed = TRUE) |>
-        gsub("\\end{table}", "\\end{subtable}", x = _, fixed = TRUE)
-    cat("",
-        "\\begin{table}[H]",
-        "\\centering",
-        paste0("\\caption{\\label{tab:inference_results_", model, "}Inference results for ", model_name, "}"),
-        both_kables,
-        "\\end{table}",
-        "",
-        sep = "\n",
-        file = here(
-            "mia-rapport-2024", "tables", "simulations",
-            "inference", paste0(model, ".tex")
-        )
-    )
-}
-
-
 ## ----proportion-preferred_model, echo = FALSE----------------------------------------------------------------------------------------------------------------------------------------
-proportion_preferred_data <- result_data_frame |>
-    group_by(epsilon_alpha, preferred_model) |>
-    summarise(n = n()) |>
-    mutate(prop_model = n / sum(n)) |>
-    ungroup() |>
-    select(-n)
-
-proportion_preferred_table <- proportion_preferred_data |>
-    pivot_wider(
-        names_from = preferred_model,
-        values_from = prop_model, values_fill = 0
-    )
-
-cat(kable(proportion_preferred_table,
-    escape = FALSE,
-    booktabs = TRUE,
-    digits = 2,
-    position = "!h",
-    caption = "\\label{tab:proportion-preferred-table}Proportions of models selected per \\eps[\\alpha] (data for Figure \\ref{fig:inference-proportion-preferred})",
-    col.names = c(
-        "\\eps[\\alpha]",
-        "$sep\\text{-}BiSBM$",
-        "$iid\\text{-}colBiSBM$",
-        "$\\pi\\text{-}colBiSBM$",
-        "$\\rho\\text{-}colBiSBM$",
-        "$\\pi\\rho\\text{-}colBiSBM$"
-    ),
-    align = "rccccc",
-    format = "latex"
-) |>
-    kable_styling(latex_options = "scale_down"), file = here(
-    "mia-rapport-2024", "tables", "simulations",
-    "inference", "preferred.tex"
-))
 
 
 ## ----proportion_preferred_figure, echo = FALSE---------------------------------------------------------------------------------------------------------------------------------------
@@ -233,7 +107,7 @@ cat(kable(proportion_preferred_table,
 #| fig.width = 7,
 #| fig.height = 4,
 #| dpi=300
-output_tikz_folder <- here("mia-rapport-2024", "tikz", "simulations", "inference")
+output_tikz_folder <- here("tikz", "simulations", "inference")
 if (!dir.exists(output_tikz_folder)) {
     dir.create(output_tikz_folder, recursive = TRUE)
 }
