@@ -3,15 +3,15 @@ library(ggplot2)
 library(ggokabeito)
 library(tidyverse)
 
-df <- readRDS(here("simulations", "clustering", "noisy_alpha", "noisy_alpha.Rds"))
+df <- readRDS(here("simulations", "clustering", "noisy_links", "noisy_links.Rds"))
 df |>
     mutate(epsilon = as.factor(epsilon)) |>
     group_by(epsilon) |>
+    filter(type == "noisy") |>
     select(epsilon, ari_truth) |>
     ggplot(aes(x = epsilon, y = ari_truth, group = epsilon, fill = epsilon)) +
     geom_boxplot() +
     labs(x = "$\\epsilon$", y = "ARI to truth") +
-    # lims(y = c(0.5, 1)) +
     theme_minimal() +
     theme(aspect.ratio = 1L, axis.text.x = element_text(angle = -45, vjust = .5, hjust = 0)) +
-    ggtitle("ARI to truth by epsilon for noisy alpha")
+    ggtitle("ARI to truth by epsilon for noisy links")
