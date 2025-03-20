@@ -25,7 +25,8 @@ conditions <- expand.grid(
 conditions$model <- as.character(conditions$model)
 set.seed(1234)
 plan(list(
-    tweak("callr", workers = floor(parallelly::availableCores(omit = 1L) / 3L)),
+    tweak("callr", workers = floor((parallelly::availableCores(omit = 1L) / 6L) / 2L)),
+    tweak("callr", workers = 2L),
     tweak("callr", workers = 3L)
 ))
 clustering_results <- future_lapply(seq_len(nrow(conditions)), function(s) {
