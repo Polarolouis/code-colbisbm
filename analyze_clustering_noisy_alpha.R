@@ -4,7 +4,7 @@ library(ggokabeito)
 library(tidyverse)
 
 df <- readRDS(here("simulations", "clustering", "noisy_alpha", "noisy_alpha.Rds"))
-df |>
+noisy_alpha_plot <- df |>
     mutate(epsilon = as.factor(epsilon)) |>
     group_by(epsilon) |>
     select(epsilon, ari_truth) |>
@@ -15,3 +15,5 @@ df |>
     theme_minimal() +
     theme(aspect.ratio = 1L, axis.text.x = element_text(angle = -45, vjust = .5, hjust = 0)) +
     ggtitle("ARI to truth by epsilon for noisy alpha")
+
+ggsave(here("figures", "simulations", "clustering", "noisy_alpha", "noisy_alpha.png"), noisy_alpha_plot, width = 6, height = 6, dpi = 300)
