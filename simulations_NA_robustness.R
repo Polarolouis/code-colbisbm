@@ -196,8 +196,10 @@ message(
 library("future")
 library("future.callr")
 plan(
-    tweak("callr", workers = floor(parallelly::availableCores(omit = 1L) / 3L)),
-    tweak("callr", workers = 3L)
+    list(
+        tweak("callr", workers = floor(parallelly::availableCores(omit = 1L) / 3L)),
+        tweak("callr", workers = 3L)
+    )
 )
 result_list <- future.apply::future_lapply(
     seq_len(nrow(conditions)),
