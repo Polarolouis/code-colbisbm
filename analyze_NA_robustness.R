@@ -12,7 +12,7 @@ library("here")
 library("tikzDevice")
 options(tikzDocumentDeclaration = "\\documentclass[10pt]{standalone}")
 
-filenames <- here("simulations", "NA_robustness", "NA_robustness_25-07-2024_10-43-12_uniform_modular_1-400.Rds")
+filenames <- here("simulations", "NA_robustness", "NA_robustness_24-03-2025_13-04-01_1-800.Rds")
 
 results_df <- readRDS(filenames)
 
@@ -21,7 +21,7 @@ matching_filenames <- filenames |>
     head(n = 2)
 
 results_df <- results_df |>
-    select(-c(repetition, sampling))
+    select(-c(repetition))
 
 auc_df <-
     results_df |>

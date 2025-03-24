@@ -37,129 +37,141 @@ max_repetition <- 10L
 
 # Collections
 collections <- list(
-    "iid" = list("modular" = c(
-        generate_bipartite_collection(nr1, nc1,
-            pir, pic,
-            alpha_modular,
-            M = 1,
-            model = "iid",
-            return_memberships = TRUE
-        ),
-        generate_bipartite_collection(nr2, nc2,
-            pir, pic,
-            alpha_modular,
-            M = M - 1,
-            model = "iid",
-            return_memberships = TRUE
-        )
-    ), "nested" = c(
-        generate_bipartite_collection(nr1, nc1,
-            pir, pic,
-            alpha_nested,
-            M = 1,
-            model = "iid",
-            return_memberships = TRUE
-        ),
-        generate_bipartite_collection(nr2, nc2,
-            pir, pic,
-            alpha_nested,
-            M = M - 1,
-            model = "iid",
-            return_memberships = TRUE
-        )
-    )),
-    "pi" = list(
-        "modular" = c(
+    "iid" = lapply(seq(1, max_repetition), function(idx) {
+        list("modular" = c(
             generate_bipartite_collection(nr1, nc1,
                 pir, pic,
-                alpha_modular, 1,
-                model = "pi",
+                alpha_modular,
+                M = 1,
+                model = "iid",
                 return_memberships = TRUE
             ),
             generate_bipartite_collection(nr2, nc2,
                 pir, pic,
-                alpha_modular, M - 1,
-                model = "pi",
+                alpha_modular,
+                M = M - 1,
+                model = "iid",
                 return_memberships = TRUE
             )
-        ),
-        "nested" = c(
+        ), "nested" = c(
             generate_bipartite_collection(nr1, nc1,
                 pir, pic,
-                alpha_nested, 1,
-                model = "pi",
+                alpha_nested,
+                M = 1,
+                model = "iid",
                 return_memberships = TRUE
             ),
             generate_bipartite_collection(nr2, nc2,
                 pir, pic,
-                alpha_nested, M - 1,
-                model = "pi",
+                alpha_nested,
+                M = M - 1,
+                model = "iid",
                 return_memberships = TRUE
             )
-        )
-    ),
-    "rho" = list(
-        "modular" = c(
-            generate_bipartite_collection(nr1, nc1,
-                pir, pic,
-                alpha_modular, 1,
-                model = "rho",
-                return_memberships = TRUE
+        ))
+    }),
+    "pi" = lapply(seq(1, max_repetition), function(idx) {
+        list(
+            "modular" = c(
+                generate_bipartite_collection(nr1, nc1,
+                    pir, pic,
+                    alpha_modular, 1,
+                    model = "pi",
+                    return_memberships = TRUE
+                ),
+                generate_bipartite_collection(nr2, nc2,
+                    pir, pic,
+                    alpha_modular, M - 1,
+                    model = "pi",
+                    return_memberships = TRUE
+                )
             ),
-            generate_bipartite_collection(nr2, nc2,
-                pir, pic,
-                alpha_modular, M - 1,
-                model = "rho",
-                return_memberships = TRUE
-            )
-        ),
-        "nested" = c(
-            generate_bipartite_collection(nr1, nc1,
-                pir, pic,
-                alpha_nested, 1,
-                model = "rho",
-                return_memberships = TRUE
-            ),
-            generate_bipartite_collection(nr2, nc2,
-                pir, pic,
-                alpha_nested, M - 1,
-                model = "rho",
-                return_memberships = TRUE
+            "nested" = c(
+                generate_bipartite_collection(nr1, nc1,
+                    pir, pic,
+                    alpha_nested, 1,
+                    model = "pi",
+                    return_memberships = TRUE
+                ),
+                generate_bipartite_collection(nr2, nc2,
+                    pir, pic,
+                    alpha_nested, M - 1,
+                    model = "pi",
+                    return_memberships = TRUE
+                )
             )
         )
-    ),
-    "pirho" = list(
-        "modular" = c(
-            generate_bipartite_collection(nr1, nc1,
-                pir, pic,
-                alpha_modular, 1,
-                model = "pirho",
-                return_memberships = TRUE
+    }),
+    "rho" = lapply(seq(1, max_repetition), function(idx) {
+        list(
+            "modular" = c(
+                generate_bipartite_collection(nr1, nc1,
+                    pir, pic,
+                    alpha_modular, 1,
+                    model = "rho",
+                    return_memberships = TRUE
+                ),
+                generate_bipartite_collection(nr2, nc2,
+                    pir, pic,
+                    alpha_modular, M - 1,
+                    model = "rho",
+                    return_memberships = TRUE
+                )
             ),
-            generate_bipartite_collection(nr2, nc2,
-                pir, pic,
-                alpha_modular, M - 1,
-                model = "pirho",
-                return_memberships = TRUE
-            )
-        ),
-        "nested" = c(
-            generate_bipartite_collection(nr1, nc1,
-                pir, pic,
-                alpha_nested, 1,
-                model = "pirho",
-                return_memberships = TRUE
-            ),
-            generate_bipartite_collection(nr2, nc2,
-                pir, pic,
-                alpha_nested, M - 1,
-                model = "pirho",
-                return_memberships = TRUE
+            "nested" = c(
+                generate_bipartite_collection(nr1, nc1,
+                    pir, pic,
+                    alpha_nested, 1,
+                    model = "rho",
+                    return_memberships = TRUE
+                ),
+                generate_bipartite_collection(nr2, nc2,
+                    pir, pic,
+                    alpha_nested, M - 1,
+                    model = "rho",
+                    return_memberships = TRUE
+                )
             )
         )
-    )
+    }),
+    "pirho" = lapply(seq(1, max_repetition), function(idx) {
+        list(
+            "modular" = c(
+                generate_bipartite_collection(nr1, nc1,
+                    pir, pic,
+                    alpha_modular, 1,
+                    model = "pirho",
+                    return_memberships = TRUE
+                ),
+                generate_bipartite_collection(nr2, nc2,
+                    pir, pic,
+                    alpha_modular, M - 1,
+                    model = "pirho",
+                    return_memberships = TRUE
+                )
+            ),
+            "nested" = c(
+                generate_bipartite_collection(nr1, nc1,
+                    pir, pic,
+                    alpha_nested, 1,
+                    model = "pirho",
+                    return_memberships = TRUE
+                ),
+                generate_bipartite_collection(nr2, nc2,
+                    pir, pic,
+                    alpha_nested, M - 1,
+                    model = "pirho",
+                    return_memberships = TRUE
+                )
+            )
+        )
+    })
 )
 
+
+max_prop_NAs <- 0.9
+indices_to_choose_from <- seq(nr1 * nc1)
+max_chosen_indices <- sample.int(nr1 * nc1, floor(max_prop_NAs * length(indices_to_choose_from)))
 
 conditions <- expand.grid(
     prop_NAs = seq(from = 0, to = 0.9, by = 0.1),
@@ -208,7 +220,8 @@ result_list <- future.apply::future_lapply(
         prop_NAs <- conditions[current, ][["prop_NAs"]]
         model <- as.character(conditions[current, ][["model"]])
         struct <- as.character(conditions[current, ][["struct"]])
-        bipartite_collection <- collections[[model]][[struct]]
+        rep <- conditions[current, ][["repetition"]]
+        bipartite_collection <- collections[[model]][[rep]][[struct]]
 
         # This is a list of the M incidence matrices
         bipartite_collection_incidence <- lapply(seq.int(M), function(m) {
@@ -222,9 +235,9 @@ result_list <- future.apply::future_lapply(
             )
         })
 
-        NAs_selected_index <- seq_len(length(bipartite_collection_incidence[[1]]))
+        indices_to_NA <- seq(1, floor(prop_NAs * length(max_chosen_indices)))
 
-        NAs_index <- sample(NAs_selected_index, size = floor(prop_NAs * length(NAs_selected_index)))
+        NAs_index <- max_chosen_indices[indices_to_NA]
 
         real_val_NAs <- bipartite_collection_incidence[[1]][NAs_index]
         bipartite_collection_incidence[[1]][NAs_index] <- NA
