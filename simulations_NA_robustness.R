@@ -213,9 +213,19 @@ plan(
         tweak("callr", workers = 3L)
     )
 )
+if (file.exists(file.path("simulations", "NA_robustness", "missed_steps.Rds"))) {
+    missed_steps <- readRDS(file.path("simulations", "NA_robustness", "missed_steps.Rds"))
+} else {
+    missed_steps <- NULL
+}
 result_list <- future.apply::future_lapply(
     seq_len(nrow(conditions)),
     function(current) {
+        # Handling missed steps
+        if (!is.null(missed_steps) && !(current %in% missed_steps)) {
+            message("Skipping step ", current, " as it was already computed.")
+            return(NULL)
+        }
         # Looping over conditions
         prop_NAs <- conditions[current, ][["prop_NAs"]]
         model <- as.character(conditions[current, ][["model"]])
