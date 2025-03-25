@@ -18,13 +18,15 @@ if (!dir.exists(temp_path)) {
 
 all_dore_matrices <- readRDS(here("data", "dore-binary-matrices.Rds"))
 
+nb_rep <- 20L
+
 # Filter to keep only Baldock Traveset Souza Cordeniz Trojelsgaard and Gibson
 
 subdore_matrices <- all_dore_matrices[grepl("Baldock|Traveset|Souza|Cordeniz|Trojelsgaard|Gibson", x = names(all_dore_matrices))]
 
 conditions <- expand.grid(
     model = c("iid", "pi", "rho", "pirho"),
-    rep = seq_len(5)
+    rep = seq.int(nb_rep)
 )
 conditions$model <- as.character(conditions$model)
 set.seed(1234)
@@ -44,11 +46,12 @@ clustering_results <- future_lapply(seq_len(nrow(conditions)), function(s) {
         netlist = subdore_matrices,
         colsbm_model = model,
         global_opts = list(backend = "future"),
-        fit_opts = list(max_vem_steps = 5000L)
+        fit_opts = list(max_vem_steps = 10000L)
     )
 
     message("End clustering ", s, " on ", nrow(conditions))
     saveRDS(out, file = file.path(temp_path, paste0("condition", s, "_on_", nrow(conditions), "_", model, "_", rep, ".Rds")))
+    return(out)
 }, future.seed = TRUE)
 
 saveRDS(clustering_results, file = file.path(save_path, paste0("clustering_results_", start_time, ".Rds")))
