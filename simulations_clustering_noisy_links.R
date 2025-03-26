@@ -47,16 +47,10 @@ conditions <- expand.grid(
     rep = seq_len(n_reps)
 )
 
-plan(list(
-    tweak("callr", workers = floor(parallelly::availableCores(omit = 1L) / rep_clustering)),
-    tweak("callr", workers = 5L)
-))
-
+# Generating n_reps collections
 set.seed(1234)
-df_list <- future_lapply(seq_len(nrow(conditions)), function(s) {
-    eps <- conditions[s, "epsilon"]
-    rep <- conditions[s, "rep"]
-    message("Starting simulation ", s, " with epsilon = ", eps, " and rep = ", rep)
+
+lapply(seq_len(n_reps), function(idx) {
     coll_type1 <- generate_bipartite_collection(
         nr = nr,
         nc = nc,
@@ -76,13 +70,37 @@ df_list <- future_lapply(seq_len(nrow(conditions)), function(s) {
         M = M
     )
     names(coll_type2) <- paste(rep("type2", M), seq(1, M), sep = ".")
-
     coll <- c(coll_type1, coll_type2)
+}) -> collections_n_reps
 
-    noisy_coll <- lapply(coll, function(mat) {
-        links <- sample.int(nr * nc, size = floor(eps * nr * nc))
-        mat[links] <- as.integer(!mat[links])
-        mat
+links_seq <- lapply(seq(n_reps), function(idx) {
+    lapply(seq_along(collections_n_reps[[idx]]), function(i) {
+        sample.int(nr * nc, size = floor(max(eps_seq) * nr * nc))
+    })
+})
+
+plan(list(
+    tweak("callr", workers = floor(parallelly::availableCores(omit = 1L) / rep_clustering)),
+    tweak("callr", workers = 5L)
+))
+
+df_list <- future_lapply(seq_len(nrow(conditions)), function(s) {
+    eps <- conditions[s, "epsilon"]
+    rep <- conditions[s, "rep"]
+    message("Starting simulation ", s, " with epsilon = ", eps, " and rep = ", rep)
+    coll <- collections_n_reps[[rep]]
+
+    seq_links_to_alter <- seq(1, eps * nr * nc)
+    links <- links_seq[[rep]]
+    links <- lapply(links, function(links_to_alter) {
+        links_to_alter[seq_links_to_alter]
+    })
+
+    noisy_coll <- lapply(seq_along(coll), function(mat_idx) {
+        current_mat <- coll[[mat_idx]]
+        current_links <- links[[mat_idx]]
+        current_mat[current_links] <- 1 - current_mat[current_links]
+        current_mat
     })
 
     type_clust <- rep(c("noisy", "clear"), rep_clustering)
@@ -134,6 +152,7 @@ df_list <- future_lapply(seq_len(nrow(conditions)), function(s) {
     current_dataset_df <- cbind(current_dataset_df, ari_other_to_other)
     saveRDS(current_dataset_df, file = file.path(temp_path, paste0("simulations_clustering_noisy_links_", start_time, "_", s, ".rds")))
     message("Finished simulation ", s, " with epsilon = ", eps, " and rep = ", rep)
+    current_dataset_df
 }, future.seed = TRUE)
 
 df <- do.call(rbind, df_list)
