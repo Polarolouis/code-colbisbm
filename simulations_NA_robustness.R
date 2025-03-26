@@ -222,6 +222,11 @@ result_list <- future.apply::future_lapply(
     seq_len(nrow(conditions)),
     function(current) {
         # Handling missed steps
+        if (current == 593) {
+            message("Saving errory random seed")
+            saveRDS(.Random.seed, file = file.path(temp_dir, "random_seed.Rds"))
+            stop()
+        }
         if (!is.null(missed_steps) && !(current %in% missed_steps)) {
             message("Skipping step ", current, " as it was already computed.")
             return(NULL)
