@@ -37,3 +37,35 @@ ggsave(here("figures", "applications", "baldock", "baldock_meso_iid.png"), iid_p
 ggsave(here("figures", "applications", "baldock", "baldock_meso_pi.png"), pi_plot, width = 12, height = 6, dpi = 300)
 ggsave(here("figures", "applications", "baldock", "baldock_meso_rho.png"), rho_plot, width = 12, height = 6, dpi = 300)
 ggsave(here("figures", "applications", "baldock", "baldock_meso_pirho.png"), pirho_plot, width = 12, height = 6, dpi = 300)
+
+
+readRDS(here("data", "dore-binary-matrices.Rds")) -> all_dore_matrices
+baldock_dore_matrices <- all_dore_matrices[grepl("Baldock", x = names(all_dore_matrices))]
+plants_insects_lists <- lapply(baldock_dore_matrices, function(mat) {
+    list(
+        insects = rownames(mat),
+        plants = colnames(mat)
+    )
+})
+
+names(plants_insects_lists) <- names(plants_insects_lists) |> gsub(pattern = "Baldock201[1,9]_", replacement = "")
+
+# Prepare latex table with merged common insects and plants
+library(tibble)
+library(kableExtra)
+library(knitr)
+library(purrr)
+library(stringr)
+
+outer(
+    plants_insects_lists,
+    plants_insects_lists,
+    Vectorize(function(x, y) {
+        paste0("$\\frac{", length(intersect(x$plants, y$plants)), "}{", length(union(x$plants, y$plants)), "},\\frac{", length(intersect(x$insects, y$insects)), "}{", length(union(x$insects, y$insects)), "}$")
+    })
+) -> nb_common
+
+nb_common[upper.tri(nb_common, diag = TRUE)] <- ""
+# Remove Baldock and keep cities from names
+nb_common |>
+    kable(format = "latex", caption = "Number of common insects/total insects and plants/total plants", escape = FALSE)
