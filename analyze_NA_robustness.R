@@ -11,7 +11,9 @@ library("stringr")
 library("here")
 library("tikzDevice")
 options(tikzDocumentDeclaration = "\\documentclass[10pt]{standalone}")
-
+options(
+    tikzLatexPackages = c(getOption("tikzLatexPackages"), "\\usepackage{amsmath}")
+)
 filenames <- here("simulations", "NA_robustness", "NA_robustness_24-03-2025_13-04-01_1-800.Rds")
 
 results_df <- readRDS(filenames)
@@ -46,6 +48,8 @@ levels(auc_df[["model"]]) <- levels(auc_df[["model"]]) |>
     str_replace("pi$", "$\\\\pi$") |>
     str_replace("rho$", "$\\\\rho$")
 
+library(patchwork)
+
 lapply(c("iid", "\\pi", "\\rho", "\\pi\\rho"), function(model_name) {
     color <- switch(model_name,
         iid = 2,
@@ -68,11 +72,14 @@ lapply(c("iid", "\\pi", "\\rho", "\\pi\\rho"), function(model_name) {
             fill = guide_legend(title = "Model"),
             color = guide_legend(title = "Model")
         ) +
+        ylim(c(0.5, 1)) +
         theme_minimal()
 }) -> auc_plots
 
+(auc_plot <- wrap_plots(auc_plots))
+
 output_tikz_folder <- here(
-    "mia-rapport-2024", "tikz", "simulations",
+    "tikz", "simulations",
     "na_robustness"
 )
 if (!dir.exists(output_tikz_folder)) {
@@ -81,7 +88,7 @@ if (!dir.exists(output_tikz_folder)) {
 
 tikz(
     file = file.path(output_tikz_folder, "auc-model.tex"), width = 6.5,
-    height = 3.5,
+    height = 4.5,
     standAlone = TRUE
 )
 print(auc_plot)
@@ -135,11 +142,11 @@ lapply(c("iid", "\\pi", "\\rho", "\\pi\\rho"), function(model_name) {
         ) +
         scale_fill_okabe_ito(order = c(color, 1), alpha = 0.5) +
         scale_color_okabe_ito(order = c(color, 1)) +
-        facet_grid(struct ~ dim, labeller = labeller(dim = dim.labs)) +
+        # facet_grid(struct ~ dim, labeller = labeller(dim = dim.labs)) +
         theme_minimal() +
         theme(axis.text.x = element_text(size = 5))
 }) -> ari_plots
-ari_plot <- wrap_plots(ari_plots) + plot_annotation(tag_levels = "A")
+(ari_plot <- wrap_plots(ari_plots))
 tikz(
     file = file.path(output_tikz_folder, "ari-dim-model.tex"), width = 6.5,
     height = 4,

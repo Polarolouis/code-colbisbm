@@ -87,9 +87,34 @@ averaged_print_data <- result_data_frame |>
     summarise(across(-preferred_model, list("avrg" = meanse))) |>
     select(-c(2:10))
 averaged_print_data <- averaged_print_data |>
-    select(which(!grepl("*_BICL_*", colnames(averaged_print_data)),
+    group_by(epsilon_alpha) |>
+    select(which(!grepl("*_(ARI|BICL|secs|un|ov)_*", colnames(averaged_print_data)),
         arr.ind = TRUE
     ))
+
+if (!dir.exists(here("tables", "inference"))) {
+    dir.create(here("tables", "inference"), recursive = TRUE)
+}
+
+length_col <- (ncol(averaged_print_data) - 1) / 4
+
+kbl(averaged_print_data,
+    format = "latex", booktabs = FALSE, escape = FALSE, col.names = c(
+        "$\\epsilon_{\\alpha}$",
+        rep(c("$\\bm{1}_{Q_1 = 4}$", "$\\bm{1}_{Q_2 = 4}$"), 4)
+    ),
+    linesep = "",
+    vline = "|",
+    align = "|l|cc|cc|cc|cc|cccc|cccc|",
+) |>
+    add_header_above(c(" ", "iid" = length_col, "$\\\\pi$" = length_col, "$\\\\rho$" = length_col, "$\\\\pi\\\\rho$" = length_col), escape = FALSE, border_left = TRUE, border_right = TRUE, line_sep = 0) |>
+    save_kable(
+        file = here("tables", "inference", "inference_table.tex"),
+        format = "latex",
+        position = "H",
+        size = "small",
+        escape = FALSE
+    )
 
 ## ----function_per_model, echo = FALSE------------------------------------------------------------------------------------------------------------------------------------------------
 dataframe_per_model <- function(model) {
@@ -111,17 +136,18 @@ output_tikz_folder <- here("tikz", "simulations", "inference")
 if (!dir.exists(output_tikz_folder)) {
     dir.create(output_tikz_folder, recursive = TRUE)
 }
+proportion_preferred_data <- result_data_frame |>
+    group_by(epsilon_alpha, preferred_model) |>
+    summarise(n = n()) |>
+    mutate(prop_model = n / sum(n)) |>
+    ungroup() |>
+    select(-n)
 
-tikz(
-    file = file.path(output_tikz_folder, "model-proportions.tex"), width = 4L,
-    height = 3L,
-    standAlone = TRUE
-)
 levels(proportion_preferred_data$preferred_model) <- c(
     "sep", "$iid$", "$\\pi$", "$\\rho$",
     "$\\pi\\rho$"
 )
-plot <- proportion_preferred_data |>
+(plot <- proportion_preferred_data |>
     ggplot() +
     aes(
         x = epsilon_alpha, y = prop_model, color = preferred_model,
@@ -142,7 +168,14 @@ plot <- proportion_preferred_data |>
         axis.text.x = element_text(angle = -45, vjust = .5, hjust = 0),
         axis.text.y = element_text(size = 6)
     ) +
-    geom_col(position = "stack")
+    geom_col(position = "stack"))
+
+tikz(
+    file = file.path(output_tikz_folder, "model-proportions.tex"), width = 4L,
+    height = 3L,
+    standAlone = TRUE
+)
+
 print(plot)
 dev.off()
 
