@@ -44,6 +44,7 @@ clustering_results <- future_lapply(seq_len(nrow(conditions)), function(s) {
 
     out <- clusterize_bipartite_networks(
         netlist = subdore_matrices,
+        net_id = names(subdore_matrices),
         colsbm_model = model,
         global_opts = list(backend = "future"),
         fit_opts = list(max_vem_steps = 10000L)
