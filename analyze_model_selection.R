@@ -72,10 +72,12 @@ model_comparison_eps_rho <- result_data_frame %>%
     mutate(prop_model = n / sum(n))
 
 bloc_recovery_df <- result_data_frame |>
+    filter(epsilon_rho %in% c(0, 0.14, 0.28)) |>
     group_by(epsilon_pi, epsilon_rho) |>
-    select(-(contains(c("BICL", "pi2", "rho2", "repetition", "elapsed_secs", "preferred_model")))) |>
-    summarise_all(mean) |>
-    relocate(c(iid_Q2, pi_Q2, rho_Q2), .after = pirho_Q1)
+    select(-(contains(c("BICL", "pi2", "rho2", "pi3", "rho3", "repetition", "elapsed_secs", "preferred_model")))) |>
+    summarise_all(meanse)
+# relocate(c(iid_Q2, pi_Q2, rho_Q2), .after = pirho_Q1)
+
 
 model_proportion_df <- result_data_frame |>
     group_by(epsilon_pi, epsilon_rho, preferred_model) |>
@@ -126,7 +128,7 @@ plot_pi_rho <- ggplot(model_comparison_eps_pi_rho, aes(
     scale_fill_okabe_ito(order = 2L:9L) +
     facet_nested("$\\epsilon_{\\rho}$" + factor(epsilon_rho, levels = rev(unique(epsilon_rho))) ~ "$\\epsilon_{\\pi}$" + epsilon_pi) +
     theme_minimal() +
-    theme(aspect.ratio = 1, axis.text.y = element_text(size = 6))
+    theme(axis.text.y = element_text(size = 6))
 plot_pi_rho
 output_tikz_folder <- here(
     "tikz", "simulations",
@@ -138,7 +140,7 @@ if (!dir.exists(output_tikz_folder)) {
 
 tikz(
     file = file.path(output_tikz_folder, "eps-pi-rho-preferred.tex"), width = 6,
-    height = 5,
+    height = 4,
     standAlone = TRUE
 )
 print(plot_pi_rho)
@@ -207,3 +209,40 @@ dev.off()
 #         collapse_rows(columns = 1:2, valign = "middle"),
 #     file = file.path(table_folder, "model-selection.tex")
 # )
+
+if (!dir.exists(here("tables", "simulations", "model_selection"))) {
+    dir.create(here("tables", "simulations", "model_selection"), recursive = TRUE)
+}
+
+kbl(bloc_recovery_df,
+    format = "latex",
+    escape = FALSE,
+    linesep = "",
+    borders = "",
+    col.names = c(
+        "$\\epsilon_{\\pi}$", "$\\epsilon_{\\rho}$",
+        "$\\bm{1}_{\\widehat{Q_1}_{iid}=3}$",
+        "$\\bm{1}_{\\widehat{Q_2}_{iid}=3}$",
+        "$\\bm{1}_{\\widehat{Q_1}_{\\pi}=3}$",
+        "$\\bm{1}_{\\widehat{Q_2}_{\\pi}=3}$",
+        "$\\bm{1}_{\\widehat{Q_1}_{\\rho}=3}$",
+        "$\\bm{1}_{\\widehat{Q_2}_{\\rho}=3}$",
+        "$\\bm{1}_{\\widehat{Q_1}_{\\pi\\rho}=3}$",
+        "$\\bm{1}_{\\widehat{Q_2}_{\\pi\\rho}=3}$"
+    ),
+    align = "|ll|cc|cc|cc|cc|c|",
+    caption = "The proportion of dataset where the correct number of blocks is
+        selected. Only show results for $\\epsilon_{\\rho}\\in \\{0, 0.14, 0.28\\}$.\\label{tab:model-selection-block-recovery}",
+    position = "!ht",
+) |>
+    add_header_above(c(
+        " " = 2L, "$iid$" = 2L,
+        "$\\\\pi$" = 2L, "$\\\\rho$" = 2L,
+        "$\\\\pi\\\\rho$" = 2L
+    ), escape = FALSE, border_left = TRUE, border_right = TRUE) |>
+    kable_styling(font_size = 9) |>
+    save_kable(
+        file = here("tables", "simulations", "model_selection", "block_recovery.tex"),
+        format = "latex",
+        latex_options = c("repeat_header")
+    )

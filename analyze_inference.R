@@ -92,8 +92,8 @@ averaged_print_data <- averaged_print_data |>
         arr.ind = TRUE
     ))
 
-if (!dir.exists(here("tables", "inference"))) {
-    dir.create(here("tables", "inference"), recursive = TRUE)
+if (!dir.exists(here("tables", "simulations", "inference"))) {
+    dir.create(here("tables", "simulations", "inference"), recursive = TRUE)
 }
 
 length_col <- (ncol(averaged_print_data) - 1) / 4
@@ -101,15 +101,20 @@ length_col <- (ncol(averaged_print_data) - 1) / 4
 kbl(averaged_print_data,
     format = "latex", booktabs = FALSE, escape = FALSE, col.names = c(
         "$\\epsilon_{\\alpha}$",
-        rep(c("$\\bm{1}_{Q_1 = 4}$", "$\\bm{1}_{Q_2 = 4}$"), 4)
+        rep(c("$\\bm{1}_{\\widehat{Q_1} = 4}$", "$\\bm{1}_{\\widehat{Q_2} = 4}$"), 4)
     ),
     linesep = "",
     vline = "|",
     align = "|l|cc|cc|cc|cc|cccc|cccc|",
+    caption = "The proportion of dataset where the correct number of blocks is selected."
 ) |>
+    kable_styling(font_size = 10L) |>
     add_header_above(c(" ", "iid" = length_col, "$\\\\pi$" = length_col, "$\\\\rho$" = length_col, "$\\\\pi\\\\rho$" = length_col), escape = FALSE, border_left = TRUE, border_right = TRUE, line_sep = 0) |>
     save_kable(
-        file = here("tables", "inference", "inference_table.tex"),
+        file = here(
+            "tables", "simulations",
+            "inference", "inference_table.tex"
+        ),
         format = "latex",
         position = "H",
         size = "small",
