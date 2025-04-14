@@ -18,7 +18,7 @@ set.seed(1234)
 # Network param
 nr <- 2 * 120
 nc <- 2 * 120
-M <- 2
+M <- 4
 
 # Changing parameters
 base_alpha <- matrix(0.25, nrow = 4, ncol = 4)
@@ -95,14 +95,14 @@ results <- future.apply::future_lapply(conditions_rows, function(s) {
     generate_bipartite_collection(
       nr, nc, conditions[s, ]$pi1, rho1,
       current_alpha,
-      M = 1, distribution = "bernoulli",
+      M = floor(M / 2), distribution = "bernoulli",
       return_memberships = TRUE
     )[[1]],
     generate_bipartite_collection(
       nr, nc, pi2, conditions[s, ]$rho2,
       current_alpha,
       distribution = "bernoulli",
-      M = 1, return_memberships = TRUE
+      M = floor(M / 2), return_memberships = TRUE
     )[[1]]
   )
   netlist <- lapply(seq_along(netlist_generated), function(m) {
