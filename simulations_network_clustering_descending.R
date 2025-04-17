@@ -215,7 +215,7 @@ with_progress(
                         backend = "future",
                         verbosity = 1L
                     ),
-                    fit_opts = list(max_vem_steps = 3000L)
+                    fit_opts = list(max_vem_steps = 10000L)
                 )
 
                 best_partitions <- list_collection
