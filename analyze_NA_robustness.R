@@ -11,9 +11,9 @@ library("stringr")
 library("here")
 library("tikzDevice")
 options(tikzDocumentDeclaration = "\\documentclass[10pt]{standalone}")
-options(
-    tikzLatexPackages = c(getOption("tikzLatexPackages"), "\\usepackage{amsmath}")
-)
+# options(
+#     tikzLatexPackages = c(getOption("tikzLatexPackages"), "\\usepackage{tikz}")
+# )
 filenames <- here("simulations", "NA_robustness", "NA_robustness_24-03-2025_13-04-01_1-800.Rds")
 
 results_df <- readRDS(filenames)
@@ -76,7 +76,7 @@ lapply(c("iid", "\\pi", "\\rho", "\\pi\\rho"), function(model_name) {
         theme_minimal()
 }) -> auc_plots
 
-(auc_plot <- wrap_plots(auc_plots))
+(auc_plot <- wrap_plots(auc_plots) + plot_layout(axis_titles = "collect"))
 
 output_tikz_folder <- here(
     "tikz", "simulations",
@@ -146,7 +146,7 @@ lapply(c("iid", "\\pi", "\\rho", "\\pi\\rho"), function(model_name) {
         theme_minimal() +
         theme(axis.text.x = element_text(size = 5))
 }) -> ari_plots
-(ari_plot <- wrap_plots(ari_plots))
+(ari_plot <- wrap_plots(ari_plots) + plot_layout(axis_titles = "collect"))
 tikz(
     file = file.path(output_tikz_folder, "ari-dim-model.tex"), width = 6.5,
     height = 4,
