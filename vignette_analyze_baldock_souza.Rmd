@@ -1,0 +1,290 @@
+# Analysis of Baldock and Souza networks
+In this vignette we'll analyze an extract of the Doré et al. dataset. Namely networks from Baldock and some from Souza.
+
+```{r}
+#| echo = TRUE,
+#| message = FALSE
+library(colSBM)
+library(ggplot2)
+library(patchwork)
+library(dplyr)
+library(tidyr)
+library(here)
+```
+
+```{r}
+# Load the data
+all_dore_matrices <- readRDS(here("data", "dore-binary-matrices.Rds"))
+baldock_matrices <- all_dore_matrices[grepl("Baldock", x = names(all_dore_matrices))]
+souza_matrices <- all_dore_matrices[grepl("Souza", x = names(all_dore_matrices))]
+```
+
+We remarked that interesting results were obtained when clustering networks with close density.
+
+```{r}
+bipartite_graph_density <- function(A) {
+    # Calculate the density of a bipartite graph
+    # A: adjacency matrix of the bipartite graph
+    # Returns the density of the bipartite graph
+
+    n <- nrow(A)
+    m <- ncol(A)
+    d <- sum(A) / (n * m)
+    return(d)
+}
+
+baldock_densities <- sapply(baldock_matrices, bipartite_graph_density)
+souza_densities <- sapply(souza_matrices, bipartite_graph_density)
+densities_df <- data.frame(
+    name = c(names(baldock_densities), names(souza_densities)),
+    density = c(baldock_densities, souza_densities),
+    type = c(rep("Baldock", length(baldock_densities)), rep("Souza", length(souza_densities)))
+)
+```
+
+The densities are as follows:
+```{r}
+#| echo = FALSE, fig.cap = "Density of Baldock and Souza networks"
+ggplot(densities_df, aes(x = name, y = density, fill = type)) +
+    geom_bar(stat = "identity") +
+    coord_flip() +
+    labs(title = "Density of Baldock and Souza networks", x = "Network", y = "Density") +
+    theme_minimal()
+```
+
+As they are close, we can analyze them together. 
+
+### Souza networks
+```{r}
+#| cache=TRUE
+set.seed(123)
+if (!file.exists(here("data", "souza_fit.Rds"))) {
+    souza_fit <- colSBM::estimate_colBiSBM(
+        netlist = souza_matrices,
+        net_id = names(souza_matrices),
+        colsbm_model = "iid",
+        global_opts = list(backend = "no_mc"),
+        fit_opts = list(kmeans_nstart = 500L, max_vem_steps = 5000L)
+    )
+    saveRDS(souza_fit, here("data", "souza_fit.Rds"))
+} else {
+    souza_fit <- readRDS(here("data", "souza_fit.Rds"))
+}
+souza_fit$choose_joint_or_separated()
+```
+
+```{r}
+plot(souza_fit) + plot(souza_fit$best_fit, type = "meso", values = TRUE)
+```
+
+### Baldock networks
+```{r}
+if (!file.exists(here("data", "baldock_fit.Rds"))) {
+    set.seed(123)
+    baldock_fit <- colSBM::estimate_colBiSBM(
+        netlist = baldock_matrices,
+        net_id = names(baldock_matrices),
+        colsbm_model = "iid",
+        global_opts = list(backend = "no_mc"),
+        fit_opts = list(kmeans_nstart = 500L, max_vem_steps = 5000L)
+    )
+    saveRDS(baldock_fit, here("data", "baldock_fit.Rds"))
+} else {
+    baldock_fit <- readRDS(here("data", "baldock_fit.Rds"))
+}
+baldock_fit$choose_joint_or_separated()
+```
+
+```{r}
+plot(baldock_fit) + plot(baldock_fit$best_fit, type = "meso", values = TRUE)
+```
+
+### Joint analysis of Baldock and Souza networks
+
+```{r}
+#| cache=TRUE
+if (!file.exists(here("data", "baldock_and_souza_fit.Rds"))) {
+    set.seed(123)
+    baldock_and_souza_fit <- colSBM::estimate_colBiSBM(
+        netlist = c(baldock_matrices, souza_matrices),
+        net_id = c(names(baldock_matrices), names(souza_matrices)),
+        colsbm_model = "iid",
+        global_opts = list(backend = "no_mc"),
+        fit_opts = list(kmeans_nstart = 500L, max_vem_steps = 5000L)
+    )
+    saveRDS(baldock_and_souza_fit, here("data", "baldock_and_souza_fit.Rds"))
+} else {
+    baldock_and_souza_fit <- readRDS(here("data", "baldock_and_souza_fit.Rds"))
+}
+
+baldock_and_souza_fit$choose_joint_or_separated()
+```
+
+```{r}
+plot(baldock_and_souza_fit) + plot(baldock_and_souza_fit$best_fit, type = "meso", values = TRUE)
+``` 
+
+And to recapitulate the results, we can plot the best fit for each of the three analyses:
+```{r}
+#| echo = FALSE, fig.cap = "Best fit for Baldock, Souza and Baldock + Souza networks"
+baldock_plot <- plot(baldock_fit$best_fit, type = "meso", values = TRUE) +
+    labs(title = "Baldock networks")
+souza_plot <- plot(souza_fit$best_fit, type = "meso", values = TRUE) +
+    labs(title = "Souza networks")
+baldock_and_souza_plot <- plot(baldock_and_souza_fit$best_fit, type = "meso", values = TRUE) +
+    labs(title = "Baldock + Souza networks")
+combined_plot <- baldock_plot + souza_plot + baldock_and_souza_plot +
+    plot_layout(ncol = 3) +
+    plot_annotation(title = "Best fit for Baldock, Souza and Baldock + Souza networks")
+combined_plot
+```
+
+### Clustering Baldock
+
+```{r}
+if (!file.exists(here("data", "baldock_clustering.Rds"))) {
+    baldock_clustering <- colSBM::clusterize_bipartite_networks(
+        netlist = baldock_matrices,
+        net_id = names(baldock_matrices),
+        colsbm_model = "iid",
+        global_opts = list(backend = "no_mc"),
+        fit_opts = list(kmeans_nstart = 500L, max_vem_steps = 5000L)
+    )
+    saveRDS(baldock_clustering, here("data", "baldock_clustering.Rds"))
+} else {
+    baldock_clustering <- readRDS(here("data", "baldock_clustering.Rds"))
+}
+print(
+    paste0(
+        "BIC-L of Baldock clustering separating African network from English ones: ",
+        sum(sapply(baldock_clustering$partition, function(x) x$BICL))
+    )
+)
+print(paste0(
+    "BIC-L of all Baldock networks: ",
+    baldock_fit$best_fit$BICL
+))
+```
+
+Thus separating the African network from the English ones is a better fit than clustering all Baldock networks together.
+
+## Clustering Souza
+```{r}
+if (!file.exists(here("data", "souza_clustering.Rds"))) {
+    souza_clustering <- colSBM::clusterize_bipartite_networks(
+        netlist = souza_matrices,
+        net_id = names(souza_matrices),
+        colsbm_model = "iid",
+        global_opts = list(backend = "no_mc"),
+        fit_opts = list(kmeans_nstart = 500L, max_vem_steps = 5000L)
+    )
+    saveRDS(souza_clustering, here("data", "souza_clustering.Rds"))
+} else {
+    souza_clustering <- readRDS(here("data", "souza_clustering.Rds"))
+}
+print(
+    paste0(
+        "BIC-L of Souza clustering: ",
+        sum(sapply(souza_clustering$partition, function(x) x$BICL))
+    )
+)
+print(paste0(
+    "BIC-L of all Souza networks: ",
+    souza_fit$best_fit$BICL
+))
+```
+
+This indicates that jointly analyzing the Souza networks or clustering is marganally different.
+
+### Clustering Baldock and Souza
+```{r}
+options(future.global.maxsize = 10^9)
+if (!file.exists(here("data", "baldock_and_souza_clustering.Rds"))) {
+    baldock_and_souza_clustering <- colSBM::clusterize_bipartite_networks(
+        netlist = c(baldock_matrices, souza_matrices),
+        net_id = c(names(baldock_matrices), names(souza_matrices)),
+        colsbm_model = "iid",
+        global_opts = list(backend = "no_mc"),
+        fit_opts = list(kmeans_nstart = 500L, max_vem_steps = 5000L)
+    )
+    saveRDS(baldock_and_souza_clustering, here("data", "baldock_and_souza_clustering.Rds"))
+} else {
+    baldock_and_souza_clustering <- readRDS(here("data", "baldock_and_souza_clustering.Rds"))
+}
+print(
+    paste0(
+        "BIC-L of Baldock + Souza clustering: ",
+        sum(sapply(baldock_and_souza_clustering$partition, function(x) x$BICL))
+    )
+)
+print(paste0(
+    "BIC-L of all Baldock + Souza networks: ",
+    baldock_and_souza_fit$best_fit$BICL
+))
+```
+
+But we want to see if the BIC-L is better for the Baldock networks, let's extract their variational bound (as penalty is computed over all networks).
+
+```{r}
+extract_vbound_per_net <- function(fit) {
+    setNames(sapply(seq_along(fit$A), function(m) {
+        fit$vb_tau_pi(m) + fit$vb_tau_alpha(m) + fit$entropy_tau(m)
+    }), fit$net_id)
+}
+
+baldock_and_souza_vbound <- unlist(lapply(baldock_and_souza_clustering$partition, function(x) extract_vbound_per_net(x)))
+baldock_vbound <- unlist(sapply(baldock_clustering$partition, function(x) extract_vbound_per_net(x)))
+souza_vbound <- unlist(lapply(souza_clustering$partition, function(x) extract_vbound_per_net(x)))
+
+baldock_vs_baldock_and_souza_vbound <- baldock_vbound - baldock_and_souza_vbound[grepl("Baldock", names(baldock_and_souza_vbound))]
+souza_vs_baldock_and_souza_vbound <- souza_vbound - baldock_and_souza_vbound[grepl("Souza", names(baldock_and_souza_vbound))]
+```
+The variational bound for Baldock and Souza together is $`r sum(baldock_and_souza_vbound[grepl("Baldock", names(baldock_and_souza_vbound))])`$ but for Baldock clustering only it is $`r 
+sum(baldock_vbound)`$ this indicates that Baldock networks are better fitted when clustering them together but without adding Souza networks.
+
+| Authors clustered | BIC-L | Variational bound |
+|------------------|-------|------------------|
+| Baldock          | `r sum(sapply(baldock_clustering$partition, function(x) x$BICL))` | `r sum(baldock_vbound)` |
+| Souza            | `r sum(sapply(souza_clustering$partition, function(x) x$BICL))` | `r sum(souza_vbound)` |
+| Baldock + Souza  | `r sum(sapply(baldock_and_souza_clustering$partition, function(x) x$BICL))` | `r sum(baldock_and_souza_vbound)` |
+
+## Achieving best partitionning 
+
+We've seen that directly clustering Baldock networks is better than clustering them with Souza networks. 
+We will now try to achieve the best partitionning by initializing the clustering with the best fit of Baldock and of Souza networks.
+But to see if the clustering is capable of cutting African network from Baldock English ones, we will use the best fit of Baldock and the best fit for Souza.
+
+```{r}
+# options(future.globals.maxSize = 10^9)
+# baldock_and_souza_from_prefit <- clusterize_bipartite_networks(
+#     netlist = c(baldock_matrices, souza_matrices),
+#     net_id = c(names(baldock_matrices), names(souza_matrices)),
+#     colsbm_model = "iid",
+#     global_opts = list(backend = "no_mc"),
+#     fit_opts = list(kmeans_nstart = 500L, max_vem_steps = 5000L),
+#     fit_init = list(
+#         baldock_fit,
+#         souza_fit
+#     )
+# )
+```
+
+Separating African and starting from Baldock English union Souza
+
+```{r}
+baldock_eng_matrices <- baldock_matrices[-1]
+baldock_eng_and_souza <- estimate_colBiSBM(
+    netlist = c(baldock_eng_matrices, souza_matrices),
+    net_id = c(names(baldock_eng_matrices), names(souza_matrices)),
+    colsbm_model = "iid",
+    global_opts = list(backend = "no_mc"),
+    fit_opts = list(kmeans_nstart = 500L, max_vem_steps = 5000L)
+)
+baldock_afr <- estimate_colBiSBM(
+    netlist = baldock_matrices[1],
+    net_id = names(baldock_matrices)[1],
+    colsbm_model = "iid",
+    global_opts = list(backend = "no_mc"),
+    fit_opts = list(kmeans_nstart = 500L, max_vem_steps = 5000L)
+)
+```
