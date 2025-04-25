@@ -21,6 +21,7 @@ set.seed(0L)
 
 nr <- 75
 nc <- 75
+M <- 10L
 
 pi <- matrix(c(0.05, 0.3, 0.65), nrow = 1, byrow = TRUE)
 rho <- matrix(c(0.1, 0.8, 0.1), nrow = 1, byrow = TRUE)
@@ -96,7 +97,7 @@ with_progress(
                 assortative_collection <- generate_bipartite_collection(
                     nr, nc,
                     current_pi, current_rho,
-                    alpha_assortative, 3,
+                    alpha_assortative, M,
                     model = current_model,
                     return_memberships = TRUE
                 )
@@ -125,7 +126,7 @@ with_progress(
                 core_periphery_collection <- generate_bipartite_collection(
                     nr, nc,
                     current_pi, current_rho,
-                    alpha_core_periphery, 3,
+                    alpha_core_periphery, M,
                     model = current_model,
                     return_memberships = TRUE
                 )
@@ -154,7 +155,7 @@ with_progress(
                 disassortative_collection <- generate_bipartite_collection(
                     nr, nc,
                     current_pi, current_rho,
-                    alpha_disassortative, 3,
+                    alpha_disassortative, M,
                     model = current_model,
                     return_memberships = TRUE
                 )
