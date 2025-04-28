@@ -32,7 +32,7 @@ models <- c("iid", "pi", "rho", "pirho")
 
 save_folder <- here(
     "simulations", "clustering",
-    "9collection"
+    "30collection"
 )
 
 if (!dir.exists(save_folder)) {
@@ -40,7 +40,7 @@ if (!dir.exists(save_folder)) {
 }
 
 save_filename <- paste0(
-    "9collection_data_clustering_desc_",
+    "30collection_data_clustering_desc_",
     format(Sys.time(), "%d-%m-%y-%H-%M-%S"),
     ".Rds"
 )
@@ -217,20 +217,14 @@ results <- future.apply::future_lapply(
             fit_opts = list(max_vem_steps = 10000L)
         )
 
-        best_partitions <- list_collection
+        best_partitions <- list_collection$partition
         bicl_vec <- sapply(seq_along(best_partitions), function(col_idx) {
             return(best_partitions[[col_idx]]$BICL)
         })
         bicl <- ifelse(length(bicl_vec) > 1, sum(bicl_vec), ifelse(length(bicl_vec) == 1, bicl_vec, NA))
-        clustering <- unlist(lapply(seq_along(best_partitions), function(col_idx) {
-            setNames(
-                rep(col_idx, best_partitions[[col_idx]]$M),
-                best_partitions[[col_idx]]$net_id
-            )
-        }))
         # ARI computation
-        clustering <- clustering[order(names(clustering))]
-        ari <- aricode::ARI(rep(c(1, 2, 3), each = 3), clustering)
+        clustering <- list_collection$cluster
+        ari <- aricode::ARI(rep(c(1, 2, 3), each = M), clustering)
         out <- data.frame(epsilon = eps, model = current_model, ARI = ari, BICL = bicl)
 
         saveRDS(out, file = file.path(
