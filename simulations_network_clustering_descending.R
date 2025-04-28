@@ -203,7 +203,7 @@ results <- future.apply::future_lapply(
             disassortative_incidence
         )
 
-        netids <- rep(c("as", "cp", "dis"), each = 3)
+        netids <- paste0(rep(c("as", "cp", "dis"), each = M), ".", seq(1, M))
 
         list_collection <- clusterize_bipartite_networks(
             netlist = incidence_matrices,
