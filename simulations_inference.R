@@ -18,7 +18,7 @@ set.seed(1234)
 # Network param
 nr <- 2 * 120
 nc <- 2 * 120
-M <- 4
+M <- 2
 
 # Changing parameters
 base_alpha <- matrix(0.25, nrow = 4, ncol = 4)
@@ -88,22 +88,22 @@ results <- future.apply::future_lapply(conditions_rows, function(s) {
   )
 
   # Compute supports
-  Cpi1 <- matrix(c(current_pi1, pi2), byrow = TRUE, nrow = M) > 0
-  Cpi2 <- matrix(c(rho1, current_rho2), byrow = TRUE, nrow = M) > 0
+  Cpi1 <- matrix(c(current_pi1, pi2), byrow = TRUE, nrow = 2 * M) > 0
+  Cpi2 <- matrix(c(rho1, current_rho2), byrow = TRUE, nrow = 2 * M) > 0
 
-  netlist_generated <- list(
+  netlist_generated <- c(
     generate_bipartite_collection(
       nr, nc, conditions[s, ]$pi1, rho1,
       current_alpha,
-      M = floor(M / 2), distribution = "bernoulli",
+      M = M, distribution = "bernoulli",
       return_memberships = TRUE
-    )[[1]],
+    ),
     generate_bipartite_collection(
       nr, nc, pi2, conditions[s, ]$rho2,
       current_alpha,
       distribution = "bernoulli",
-      M = floor(M / 2), return_memberships = TRUE
-    )[[1]]
+      M = M, return_memberships = TRUE
+    )
   )
   netlist <- lapply(seq_along(netlist_generated), function(m) {
     return(netlist_generated[[m]]$incidence_matrix)
@@ -118,14 +118,16 @@ results <- future.apply::future_lapply(conditions_rows, function(s) {
   })
 
   full_row_clustering <- as.vector(sapply(
-    seq.int(M),
+    seq.int(2 * M),
     function(m) row_clusterings[[m]]
   ))
 
   full_col_clustering <- as.vector(sapply(
-    seq.int(M),
+    seq.int(2 * M),
     function(m) col_clusterings[[m]]
   ))
+
+  fit_opts <- list(max_vem_steps = 5000L)
 
   fitted_bisbmpop_iid <- estimate_colBiSBM(
     netlist = netlist,
@@ -136,7 +138,8 @@ results <- future.apply::future_lapply(conditions_rows, function(s) {
       verbosity = 0,
       plot_details = 0,
       nb_cores = parallelly::availableCores(omit = 1)
-    )
+    ),
+    fit_opts = fit_opts
   )
 
   # Handling a problem with sep_BiSBM$M
@@ -153,7 +156,8 @@ results <- future.apply::future_lapply(conditions_rows, function(s) {
       plot_details = 0,
       nb_cores = parallelly::availableCores(omit = 1)
     ),
-    sep_BiSBM = sep_BiSBM
+    sep_BiSBM = sep_BiSBM,
+    fit_opts = fit_opts
   )
 
   fitted_bisbmpop_rho <- estimate_colBiSBM(
@@ -166,7 +170,8 @@ results <- future.apply::future_lapply(conditions_rows, function(s) {
       plot_details = 0,
       nb_cores = parallelly::availableCores(omit = 1)
     ),
-    sep_BiSBM = sep_BiSBM
+    sep_BiSBM = sep_BiSBM,
+    fit_opts = fit_opts
   )
 
   fitted_bisbmpop_pirho <- estimate_colBiSBM(
@@ -179,7 +184,8 @@ results <- future.apply::future_lapply(conditions_rows, function(s) {
       plot_details = 0,
       nb_cores = parallelly::availableCores(omit = 1)
     ),
-    sep_BiSBM = sep_BiSBM
+    sep_BiSBM = sep_BiSBM,
+    fit_opts = fit_opts
   )
 
   stop_time_condition <- Sys.time()
