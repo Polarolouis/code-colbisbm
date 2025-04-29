@@ -225,7 +225,7 @@ results <- future.apply::future_lapply(
         # ARI computation
         clustering <- list_collection$cluster
         ari <- aricode::ARI(rep(c(1, 2, 3), each = M), clustering)
-        out <- data.frame(epsilon = eps, model = current_model, ARI = ari, BICL = bicl)
+        out <- data.frame(epsilon = eps, model = current_model, ARI = ari, BICL = bicl, nb_collections = length(best_partitions))
 
         saveRDS(out, file = file.path(
             temp_folder,
