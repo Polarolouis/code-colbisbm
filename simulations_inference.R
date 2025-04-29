@@ -48,9 +48,6 @@ conditions <- conditions[
     1L, any
   ),
 ]
-
-conditions <- conditions
-
 #  Data params
 main_dir <- file.path("simulations", "inference")
 
@@ -67,11 +64,28 @@ if (!dir.exists(temp_dir)) {
 
 file_save <- file.path(main_dir, paste0("bernoulli_inference_", start_time, ".Rds"))
 
+missing_conditions_file <- file.path(main_dir, "missing_conditions.Rds")
 tictoc::tic()
+if (file.exists(missing_conditions_file)) {
+  message("Resuming from missing conditions.")
+  row_conditions <- readRDS(missing_conditions_file)
+} else {
+  message("Starting from scratch.")
+  row_conditions <- seq_len(nrow(conditions))
+}
 
 message("Starting bernoulli inference simulation.")
 conditions_rows <- seq_len(nrow(conditions))
 results <- future.apply::future_lapply(conditions_rows, function(s) {
+  if (!(s %in% row_conditions)) {
+    message("Skipping condition ", s, " on ", nrow(conditions))
+    return(NULL)
+  }
+  message(
+    "Starting condition ", s, " on ", nrow(conditions),
+    " with epsilon_alpha = ", conditions[s, ]$epsilon_alpha,
+    " and repetition = ", conditions[s, ]$repetition
+  )
   start_time_condition <- Sys.time()
   ea <- conditions[s, ]$epsilon_alpha
   current_pi1 <- conditions[s, ]$pi1
