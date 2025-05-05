@@ -11,6 +11,8 @@ options(future.globals.maxSize = Inf)
 (all_partitions <- all_partitions[seq(nrow(all_partitions), 1), ])
 # Here we want to merge the strings for each row e.g "{a", "b"}" into "ab"
 
+model <- "pirho"
+
 partitions_keys <- lapply(seq_len(nrow(all_partitions)), function(idx) {
     # Here we merge the strings if there is an opening { and until a closing }
     # is met we also remove the opening and closing brackets
@@ -73,7 +75,7 @@ compute_collection <- function(key) {
     fit <- estimate_colBiSBM(
         netlist = matrices,
         net_id = netids,
-        colsbm_model = "iid",
+        colsbm_model = model,
         global_opts = list(backend = "future"),
         fit_opts = list(max_vem_steps = 10000L)
     )
@@ -102,7 +104,7 @@ compute_partition <- function(partition_keys, netids = names(baldock_matrices)) 
 
 plan(list(tweak("callr", workers = 5L), tweak("callr", workers = 3L)))
 
-save_path <- here("applications", "baldock_exhaustive")
+save_path <- here("applications", "baldock_exhaustive", model)
 
 if (!dir.exists(save_path)) {
     dir.create(save_path, recursive = TRUE)
