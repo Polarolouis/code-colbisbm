@@ -53,8 +53,23 @@ if (!dir.exists(temp_folder)) {
 
 conditions <- tidyr::crossing(epsilons, repetitions, models)
 
+missing_conditions_file <- file.path(save_folder, "missing_conditions.Rds")
+
+if (file.exists(missing_conditions_file)) {
+    message("Resuming from missing conditions.")
+    row_conditions <- readRDS(missing_conditions_file)
+} else {
+    message("Starting from scratch.")
+    row_conditions <- seq_len(nrow(conditions))
+}
+
+
 results <- future.apply::future_lapply(
     seq_len(nrow(conditions)), function(s) {
+        if (!(s %in% row_conditions)) {
+            message("Skipping condition ", s, " on ", nrow(conditions))
+            return(NULL)
+        }
         eps <- conditions[s, ]$epsilons
         current_pi <- pi
         current_rho <- rho
