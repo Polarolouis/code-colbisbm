@@ -12,7 +12,10 @@ if (!all((necessary_packages %in% installed.packages()))) {
 library(colSBM)
 library(future.callr)
 
-future::plan(tweak("callr", workers = parallelly::availableCores(omit = 1L)))
+future::plan(list(
+  tweak("multisession", workers = floor(parallelly::availableCores(omit = 1L) / 3L)),
+  tweak("multisession", workers = 3L)
+))
 set.seed(1234)
 
 # Network param
