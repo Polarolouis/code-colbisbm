@@ -37,3 +37,5 @@ extract_best_partition_from_exh <- function(data_files) {
 pirho_data_files <- list.files(here("applications", "baldock_exhaustive", "pirho"), full.names = TRUE) |> str_sort(numeric = TRUE)
 
 # extract_best_partition_from_exh(iid_data_files)
+pirho_best_partition <- extract_best_partition_from_exh(pirho_data_files)
+plot(pirho_best_partition$abcde, type = "meso", values = TRUE, mixture = TRUE)
