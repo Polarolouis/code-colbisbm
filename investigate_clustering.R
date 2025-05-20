@@ -3,6 +3,8 @@ library(colSBM)
 library(here)
 library(stringr)
 library(future.callr)
+library(tidyverse)
+
 options(future.globals.maxSize = 8912896000) # 8.3 GB
 # matrices <- readRDS(here("data", "dore-binary-matrices.Rds"))
 # baldock_matrices <- matrices[grepl("Baldock", x = names(matrices))]
@@ -79,19 +81,25 @@ M <- 3
 }
 
 names(matrices) <- paste0(rep(c("assortative", "core_periphery", "disassortative"), each = 3), ".", seq(1, 3))
-
-plan("callr", workers = 3L)
-fit_no_penalty <- estimate_colBiSBM(
-    netlist = matrices,
-    colsbm_model = "iid",
-    net_id = names(matrices),
-    fit_opts = list(penalty_factor = 0),
-    global_opts = list(
-        verbosity = 0,
-        backend = "future"
+if (!file.exists(here("investigate", "iid-penalty0.Rds"))) {
+    if (!dir.exists(here("investigate", "iid-penalty0.Rds"))) {
+        dir.create(here("investigate", "iid-penalty0.Rds"), recursive = TRUE)
+    }
+    plan("callr", workers = 3L)
+    fit_no_penalty <- estimate_colBiSBM(
+        netlist = matrices,
+        colsbm_model = "iid",
+        net_id = names(matrices),
+        fit_opts = list(penalty_factor = 0),
+        global_opts = list(
+            verbosity = 0,
+            backend = "future"
+        )
     )
-)
-
+    saveRDS(fit_no_penalty, here("investigate", "iid-penalty0.Rds"))
+} else {
+    fit_no_penalty <- readRDS(here("investigate", "iid-penalty0.Rds"))
+}
 pdf("tutu.pdf")
 for (q1 in seq(1, fit_no_penalty$global_opts$Q1_max)) {
     for (q2 in seq(1, fit_no_penalty$global_opts$Q2_max)) {
@@ -103,14 +111,16 @@ for (q1 in seq(1, fit_no_penalty$global_opts$Q1_max)) {
 }
 dev.off()
 
-colSBM:::compute_dissimilarity_matrix(model)
 
 clusts <- list()
+clusts_df <- data.frame()
 for (q1 in seq(1, fit_no_penalty$global_opts$Q1_max)) {
     for (q2 in seq(1, fit_no_penalty$global_opts$Q2_max)) {
         model <- fit_no_penalty$model_list[[q1, q2]]
         if (!is.null(model)) {
-            clusts[[paste0(toString(c(q1, q2)))]] <- cutree(hclust(as.dist(colSBM:::compute_dissimilarity_matrix(model)), method = "ward.D2"), k = 2)
+            clustering <- cutree(hclust(as.dist(colSBM:::compute_dissimilarity_matrix(model)), method = "ward.D2"), k = 2)
+            clusts[[paste0(toString(c(q1, q2)))]] <- clustering
+            clusts_df <- rbind(clusts_df, as.data.frame(list("clustering" = t(clustering))))
         }
     }
 }
@@ -119,9 +129,24 @@ outer(clusts, clusts, FUN = Vectorize(function(x, y) {
     aricode::ARI(x, y)
 })) -> ari_models
 
-library(tidyverse)
 ari_models %>%
     reshape2::melt() -> my_df
 
 ggplot(my_df) +
-    geom_tile(aes(x = Var1, y = Var2, fill = value))
+    geom_tile(aes(x = Var1, y = Var2, fill = as.factor(value)))
+
+unique_clusterings <- unique(clusts)
+plan("callr", workers = min(parallelly::availableCores(omit = 1L), length(unique_clusterings)))
+lapply(unique_clusterings, function(clustering) {
+    lapply(c(1, 2), function(k) {
+        fit <- estimate_colBiSBM(
+            netlist = matrices[clustering == k],
+            colsbm_model = "iid",
+            net_id = names(matrices)[clustering == k],
+            global_opts = list(
+                verbosity = 0,
+                backend = "no_mc"
+            ),
+        )
+    })
+})
