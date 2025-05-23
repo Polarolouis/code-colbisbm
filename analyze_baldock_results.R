@@ -27,22 +27,22 @@ if (!file.exists(here("data", "baldock-iid.Rds"))) {
     fit <- readRDS(here("data", "baldock-iid.Rds"))
 }
 
-# for (i in seq_along(fit$sep_BiSBM$models)) {
-#     cat("Network ID:", fit$sep_BiSBM$models[[i]]$net_id, "\n")
-#     pdf(
-#         here("figures", "applications", "baldock", paste0(
-#             "bisbm-mat-",
-#             fit$sep_BiSBM$models[[i]]$net_id,
-#             ".pdf"
-#         )),
-#         family = "Times"
-#     )
-#     print(plot(fit$sep_BiSBM$models[[i]], type = "block") +
-#         xlab("Plants") +
-#         ylab("Pollinators") +
-#         theme(axis.title.y = element_text(size = 40), axis.title.x = element_text(size = 40)))
-#     dev.off()
-# }
+for (i in seq_along(fit$sep_BiSBM$models)) {
+    cat("Network ID:", fit$sep_BiSBM$models[[i]]$net_id, "\n")
+    pdf(
+        here("figures", "applications", "baldock", paste0(
+            "bisbm-mat-",
+            fit$sep_BiSBM$models[[i]]$net_id,
+            ".pdf"
+        )),
+        family = "Times"
+    )
+    print(plot(fit$sep_BiSBM$models[[i]], type = "block", oRow = seq(3, 1)) +
+        xlab("Plants") +
+        ylab("Pollinators") +
+        theme(axis.title.y = element_text(size = 40), axis.title.x = element_text(size = 40)))
+    dev.off()
+}
 
 # for (i in seq_along(fit$sep_BiSBM$models)) {
 #     cat("Network ID:", fit$sep_BiSBM$models[[i]]$net_id, "\n")
@@ -72,10 +72,32 @@ if (!file.exists(here("data", "baldock-iid.Rds"))) {
 #         ylab("Pollinators") +
 #         theme(axis.title.y = element_text(size = 40), axis.title.x = element_text(size = 40)))
 # }
+
+for (i in seq_along(fit$net_id)) {
+    net_id <- fit$net_id[i]
+    cat("Network ID:", net_id, "\n")
+    pdf(
+        here("figures", "applications", "baldock", paste0(
+            "colbisbm-mat-",
+            fit$best_fit$net_id[i],
+            ".pdf"
+        )),
+        family = "Times"
+    )
+    print(plot(fit$best_fit, net_id = i, type = "block", values = F) +
+        xlab("Plants") +
+        ylab("Pollinators") +
+        theme(axis.title.y = element_text(size = 40), axis.title.x = element_text(size = 40)))
+    dev.off()
+}
+
 # plot(fit)
-
-# plot(fit$best_fit, type = "meso", mixture = TRUE, values = TRUE)
-
+cairo_pdf(
+    here("figures", "applications", "baldock", "shared-iid.pdf"),
+    family = "Times", height = 5
+)
+plot(fit$best_fit, type = "meso", values = TRUE) + guides(fill = "none")
+dev.off()
 baldock_nodes_groups <- extract_nodes_groups(fit)
 baldock_nodes_groups <- baldock_nodes_groups %>% mutate(node_type = ifelse(node_type == "row", "pollinator", "plant"), network = recode(network,
     "1" = "Bristol",
@@ -148,3 +170,16 @@ lapply(seq_along(bombus_mat_list), function(idx) {
     plot_annotation(title = "Bombus species interactions with plants in the four networks") +
     plot_layout(guides = "collect") &
     theme(legend.position = "bottom")
+
+plants_bristol <- baldock_matrices[[1]] |> colnames()
+plants_leeds <- baldock_matrices[[3]] |> colnames()
+plants_b_and_l <- intersect(plants_bristol, plants_leeds)
+length(plants_b_and_l)
+
+plants_edinburgh <- baldock_matrices[[2]] |> colnames()
+plants_reading <- baldock_matrices[[4]] |> colnames()
+plants_e_and_r <- intersect(plants_edinburgh, plants_reading)
+length(plants_e_and_r)
+
+plants_all <- intersect(plants_b_and_l, plants_e_and_r)
+length(plants_all)
