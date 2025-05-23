@@ -82,8 +82,8 @@ M <- 3
 
 names(matrices) <- paste0(rep(c("assortative", "core_periphery", "disassortative"), each = 3), ".", seq(1, 3))
 if (!file.exists(here("investigate", "iid-penalty0.Rds"))) {
-    if (!dir.exists(here("investigate", "iid-penalty0.Rds"))) {
-        dir.create(here("investigate", "iid-penalty0.Rds"), recursive = TRUE)
+    if (!dir.exists(here("investigate"))) {
+        dir.create(here("investigate"), recursive = TRUE)
     }
     plan("callr", workers = 3L)
     fit_no_penalty <- estimate_colBiSBM(
@@ -132,8 +132,10 @@ outer(clusts, clusts, FUN = Vectorize(function(x, y) {
 ari_models %>%
     reshape2::melt() -> my_df
 
+library(ggokabeito)
 ggplot(my_df) +
-    geom_tile(aes(x = Var1, y = Var2, fill = as.factor(value)))
+    geom_tile(aes(x = Var1, y = Var2, fill = as.factor(value)), show.legend = T) +
+    scale_fill_okabe_ito()
 
 unique_clusterings <- unique(clusts)
 plan("callr", workers = min(parallelly::availableCores(omit = 1L), length(unique_clusterings)))
