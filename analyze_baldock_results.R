@@ -28,7 +28,7 @@ if (!file.exists(here("data", "baldock-iid.Rds"))) {
 }
 
 for (i in seq_along(fit$sep_BiSBM$models)) {
-    cat("Network ID:", fit$sep_BiSBM$models[[i]]$net_id, "\n")
+    cat("Network ID:", fit$sep_BiSBM$models[[i]]$net_id, toString(fit$sep_BiSBM$models[[i]]$Q), "\n")
     pdf(
         here("figures", "applications", "baldock", paste0(
             "bisbm-mat-",
@@ -91,12 +91,18 @@ for (i in seq_along(fit$net_id)) {
     dev.off()
 }
 
-# plot(fit)
+# # plot(fit)
 cairo_pdf(
     here("figures", "applications", "baldock", "shared-iid.pdf"),
     family = "Times", height = 5
 )
 plot(fit$best_fit, type = "meso", values = TRUE) + guides(fill = "none")
+dev.off()
+cairo_pdf(
+    here("figures", "applications", "baldock", "shared-mixture-iid.pdf"),
+    family = "Times", height = 7, width = 10
+)
+plot(fit$best_fit, type = "meso", mixture = TRUE, values = TRUE)
 dev.off()
 baldock_nodes_groups <- extract_nodes_groups(fit)
 baldock_nodes_groups <- baldock_nodes_groups %>% mutate(node_type = ifelse(node_type == "row", "pollinator", "plant"), network = recode(network,
