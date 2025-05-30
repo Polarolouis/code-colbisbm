@@ -36,11 +36,11 @@ pi <- matrix(c(0.05, 0.3, 0.65), nrow = 1, byrow = TRUE)
 rho <- matrix(c(0.1, 0.8, 0.1), nrow = 1, byrow = TRUE)
 repetitions <- seq.int(10)
 epsilons <- seq(0.1, 0.4, by = 0.1)
-models <- c("iid", "pi", "rho", "pirho")
+models <- c("iid")
 
 save_folder <- here(
     "simulations", "clustering",
-    "30collection"
+    "9collection"
 )
 
 if (!dir.exists(save_folder)) {
@@ -48,7 +48,7 @@ if (!dir.exists(save_folder)) {
 }
 
 save_filename <- paste0(
-    "30collection_data_clustering_da_",
+    "9collection_data_clustering_da_",
     format(Sys.time(), "%d-%m-%y-%H-%M-%S"),
     ".Rds"
 )
@@ -61,15 +61,15 @@ if (!dir.exists(temp_folder)) {
 
 conditions <- tidyr::crossing(epsilons, repetitions, models)
 
-missing_conditions_file <- file.path(save_folder, "missing_conditions.Rds")
+# missing_conditions_file <- file.path(save_folder, "missing_conditions_da.Rds")
 
-if (file.exists(missing_conditions_file)) {
-    message("Resuming from missing conditions.")
-    row_conditions <- readRDS(missing_conditions_file)
-} else {
-    message("Starting from scratch.")
-    row_conditions <- seq_len(nrow(conditions))
-}
+# if (file.exists(missing_conditions_file)) {
+#     message("Resuming from missing conditions.")
+#     row_conditions <- readRDS(missing_conditions_file)
+# } else {
+message("Starting from scratch.")
+row_conditions <- seq_len(nrow(conditions))
+# }
 
 
 results <- future.apply::future_lapply(
