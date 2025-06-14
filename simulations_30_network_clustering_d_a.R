@@ -30,7 +30,7 @@ set.seed(0L)
 
 nr <- 75
 nc <- 75
-M <- 3L
+M <- 10L
 
 pi <- matrix(c(0.05, 0.3, 0.65), nrow = 1, byrow = TRUE)
 rho <- matrix(c(0.1, 0.8, 0.1), nrow = 1, byrow = TRUE)
@@ -40,7 +40,7 @@ models <- c("iid")
 
 save_folder <- here(
     "simulations", "clustering",
-    "9collection"
+    paste0(3 * M, "collection")
 )
 
 if (!dir.exists(save_folder)) {
@@ -48,7 +48,7 @@ if (!dir.exists(save_folder)) {
 }
 
 save_filename <- paste0(
-    "9collection_data_clustering_da_",
+    paste0(3 * M, "collection_data_clustering_da_"),
     format(Sys.time(), "%d-%m-%y-%H-%M-%S"),
     ".Rds"
 )
@@ -71,20 +71,9 @@ message("Starting from scratch.")
 row_conditions <- seq_len(nrow(conditions))
 # }
 
-
-results <- future.apply::future_lapply(
-    seq_len(nrow(conditions)), function(s) {
-        if (!(s %in% row_conditions)) {
-            message("Skipping condition ", s, " on ", nrow(conditions))
-            return(NULL)
-        }
-        eps <- conditions[s, ]$epsilons
-        current_pi <- pi
-        current_rho <- rho
-        current_model <- conditions[s, ]$models
-
-        cli::cli_text("Starting condition {s} on {nrow(conditions)}")
-
+# Pre-generate the matrices list to have good comparison
+matrices_lists <- lapply(models, function(model) {
+    lapply(epsilons, function(eps) {
         alpha_assortative <- matrix(0.3, nrow = 3, ncol = 3) +
             matrix(
                 c(
@@ -117,9 +106,9 @@ results <- future.apply::future_lapply(
 
         assortative_collection <- generate_bipartite_collection(
             nr, nc,
-            current_pi, current_rho,
+            pi, rho,
             alpha_assortative, M,
-            model = current_model,
+            model = model,
             return_memberships = TRUE
         )
 
@@ -130,25 +119,11 @@ results <- future.apply::future_lapply(
             }
         )
 
-        assortative_row_clustering <- lapply(
-            seq_along(assortative_collection),
-            function(m) {
-                return(assortative_collection[[m]]$row_clustering)
-            }
-        )
-
-        assortative_col_clustering <- lapply(
-            seq_along(assortative_collection),
-            function(m) {
-                return(assortative_collection[[m]]$row_clustering)
-            }
-        )
-
         core_periphery_collection <- generate_bipartite_collection(
             nr, nc,
-            current_pi, current_rho,
+            pi, rho,
             alpha_core_periphery, M,
-            model = current_model,
+            model = model,
             return_memberships = TRUE
         )
 
@@ -159,25 +134,11 @@ results <- future.apply::future_lapply(
             }
         )
 
-        core_periphery_row_clustering <- lapply(
-            seq_along(core_periphery_collection),
-            function(m) {
-                return(core_periphery_collection[[m]]$row_clustering)
-            }
-        )
-
-        core_periphery_col_clustering <- lapply(
-            seq_along(core_periphery_collection),
-            function(m) {
-                return(core_periphery_collection[[m]]$row_clustering)
-            }
-        )
-
         disassortative_collection <- generate_bipartite_collection(
             nr, nc,
-            current_pi, current_rho,
+            pi, rho,
             alpha_disassortative, M,
-            model = current_model,
+            model = model,
             return_memberships = TRUE
         )
 
@@ -188,35 +149,6 @@ results <- future.apply::future_lapply(
             }
         )
 
-        disassortative_row_clustering <- lapply(
-            seq_along(disassortative_collection),
-            function(m) {
-                return(disassortative_collection[[m]]$row_clustering)
-            }
-        )
-
-        disassortative_col_clustering <- lapply(
-            seq_along(disassortative_collection),
-            function(m) {
-                return(disassortative_collection[[m]]$row_clustering)
-            }
-        )
-
-        real_row_clustering <- append(
-            append(
-                assortative_row_clustering,
-                core_periphery_row_clustering
-            ),
-            disassortative_row_clustering
-        )
-
-        real_col_clustering <- append(
-            append(
-                assortative_col_clustering,
-                core_periphery_col_clustering
-            ),
-            disassortative_col_clustering
-        )
 
         incidence_matrices <- append(
             append(
@@ -225,8 +157,34 @@ results <- future.apply::future_lapply(
             ),
             disassortative_incidence
         )
+        netids <- paste0(rep(c("as", "cp", "dis"), each = M), ".", seq(1, M))
+        incidence_matrices <- setNames(incidence_matrices, netids)
+
+        return(incidence_matrices)
+    })
+})
+
+names(matrices_lists) <- models
+for (model in models) {
+    names(matrices_lists[[model]]) <- epsilons
+}
+
+results <- future.apply::future_lapply(
+    seq_len(nrow(conditions)), function(s) {
+        if (!(s %in% row_conditions)) {
+            message("Skipping condition ", s, " on ", nrow(conditions))
+            return(NULL)
+        }
+        eps <- conditions[s, ]$epsilons
+        current_pi <- pi
+        current_rho <- rho
+        current_model <- conditions[s, ]$models
+
+        cli::cli_text("Starting condition {s} on {nrow(conditions)}")
+
 
         netids <- paste0(rep(c("as", "cp", "dis"), each = M), ".", seq(1, M))
+        incidence_matrices <- matrices_lists[[current_model]][[as.character(eps)]]
 
         list_collection <- clusterize_bipartite_networks_d_a(
             netlist = incidence_matrices,
