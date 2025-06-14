@@ -20,10 +20,10 @@ library(future.apply)
 library(progressr)
 suppressPackageStartupMessages(library("colSBM"))
 handlers(global = TRUE)
-# plan(list(
-#     tweak("multisession", workers = parallelly::availableCores(omit = 2L) / 3L),
-#     tweak("multisession", workers = 3L)
-# ))
+plan(list(
+    tweak("multisession", workers = parallelly::availableCores(omit = 2L) / 3L),
+    tweak("multisession", workers = 3L)
+))
 
 set.seed(0L)
 
@@ -71,8 +71,8 @@ message("Starting from scratch.")
 row_conditions <- seq_len(nrow(conditions))
 # }
 
-# future.apply::future_
-results <- lapply(
+
+results <- future.apply::future_lapply(
     seq_len(nrow(conditions)), function(s) {
         if (!(s %in% row_conditions)) {
             message("Skipping condition ", s, " on ", nrow(conditions))
@@ -256,9 +256,8 @@ results <- lapply(
         ))
 
         return(out)
-    }
-    # ,
-    # future.seed = TRUE
+    },
+    future.seed = TRUE
 )
 
 data_frame_result <- do.call("rbind", results)
