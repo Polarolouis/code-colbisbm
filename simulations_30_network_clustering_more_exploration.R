@@ -16,13 +16,13 @@ if (!all(necessary_packages %in% installed.packages())) {
 library(here)
 library(future)
 library(future.apply)
-library(future.callr)
+# library(future.callr)
 library(progressr)
 suppressPackageStartupMessages(library("colSBM"))
 handlers(global = TRUE)
 plan(list(
-    tweak("callr", workers = parallelly::availableCores(omit = 2L) / 3L),
-    tweak("callr", workers = 3L)
+    tweak("multisession", workers = parallelly::availableCores(omit = 2L) / 3L),
+    tweak("multisession", workers = 3L)
 ))
 
 set.seed(0L)
