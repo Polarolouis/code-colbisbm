@@ -74,99 +74,104 @@ row_conditions <- seq_len(nrow(conditions))
 # Pre-generate the matrices list to have good comparison
 matrices_lists <- lapply(models, function(model) {
     lapply(epsilons, function(eps) {
-        alpha_assortative <- matrix(0.3, nrow = 3, ncol = 3) +
-            matrix(
-                c(
-                    eps, -0.5 * eps, -0.5 * eps,
-                    -0.5 * eps, eps, -0.5 * eps,
-                    -0.5 * eps, -0.5 * eps, eps
-                ),
-                nrow = 3, byrow = TRUE
+        lapply(repetitions, function(rep) {
+            alpha_assortative <- matrix(0.3, nrow = 3, ncol = 3) +
+                matrix(
+                    c(
+                        eps, -0.5 * eps, -0.5 * eps,
+                        -0.5 * eps, eps, -0.5 * eps,
+                        -0.5 * eps, -0.5 * eps, eps
+                    ),
+                    nrow = 3, byrow = TRUE
+                )
+
+            alpha_core_periphery <- matrix(0.3, nrow = 3, ncol = 3) +
+                matrix(
+                    c(
+                        1.5 * eps, eps, 0.5 * eps,
+                        eps, 0.5 * eps, 0,
+                        0.5 * eps, 0, -0.5 * eps
+                    ),
+                    nrow = 3, byrow = TRUE
+                )
+
+            alpha_disassortative <- matrix(0.3, nrow = 3, ncol = 3) +
+                matrix(
+                    c(
+                        -0.5 * eps, eps, eps,
+                        eps, -0.5 * eps, eps,
+                        eps, eps, -0.5 * eps
+                    ),
+                    nrow = 3, byrow = TRUE
+                )
+
+            assortative_collection <- generate_bipartite_collection(
+                nr, nc,
+                pi, rho,
+                alpha_assortative, M,
+                model = model,
+                return_memberships = TRUE
             )
 
-        alpha_core_periphery <- matrix(0.3, nrow = 3, ncol = 3) +
-            matrix(
-                c(
-                    1.5 * eps, eps, 0.5 * eps,
-                    eps, 0.5 * eps, 0,
-                    0.5 * eps, 0, -0.5 * eps
-                ),
-                nrow = 3, byrow = TRUE
+            assortative_incidence <- lapply(
+                seq_along(assortative_collection),
+                function(m) {
+                    return(assortative_collection[[m]]$incidence_matrix)
+                }
             )
 
-        alpha_disassortative <- matrix(0.3, nrow = 3, ncol = 3) +
-            matrix(
-                c(
-                    -0.5 * eps, eps, eps,
-                    eps, -0.5 * eps, eps,
-                    eps, eps, -0.5 * eps
-                ),
-                nrow = 3, byrow = TRUE
+            core_periphery_collection <- generate_bipartite_collection(
+                nr, nc,
+                pi, rho,
+                alpha_core_periphery, M,
+                model = model,
+                return_memberships = TRUE
             )
 
-        assortative_collection <- generate_bipartite_collection(
-            nr, nc,
-            pi, rho,
-            alpha_assortative, M,
-            model = model,
-            return_memberships = TRUE
-        )
+            core_periphery_incidence <- lapply(
+                seq_along(core_periphery_collection),
+                function(m) {
+                    return(core_periphery_collection[[m]]$incidence_matrix)
+                }
+            )
 
-        assortative_incidence <- lapply(
-            seq_along(assortative_collection),
-            function(m) {
-                return(assortative_collection[[m]]$incidence_matrix)
-            }
-        )
+            disassortative_collection <- generate_bipartite_collection(
+                nr, nc,
+                pi, rho,
+                alpha_disassortative, M,
+                model = model,
+                return_memberships = TRUE
+            )
 
-        core_periphery_collection <- generate_bipartite_collection(
-            nr, nc,
-            pi, rho,
-            alpha_core_periphery, M,
-            model = model,
-            return_memberships = TRUE
-        )
-
-        core_periphery_incidence <- lapply(
-            seq_along(core_periphery_collection),
-            function(m) {
-                return(core_periphery_collection[[m]]$incidence_matrix)
-            }
-        )
-
-        disassortative_collection <- generate_bipartite_collection(
-            nr, nc,
-            pi, rho,
-            alpha_disassortative, M,
-            model = model,
-            return_memberships = TRUE
-        )
-
-        disassortative_incidence <- lapply(
-            seq_along(disassortative_collection),
-            function(m) {
-                return(disassortative_collection[[m]]$incidence_matrix)
-            }
-        )
+            disassortative_incidence <- lapply(
+                seq_along(disassortative_collection),
+                function(m) {
+                    return(disassortative_collection[[m]]$incidence_matrix)
+                }
+            )
 
 
-        incidence_matrices <- append(
-            append(
-                assortative_incidence,
-                core_periphery_incidence
-            ),
-            disassortative_incidence
-        )
-        netids <- paste0(rep(c("as", "cp", "dis"), each = M), ".", seq(1, M))
-        incidence_matrices <- setNames(incidence_matrices, netids)
+            incidence_matrices <- append(
+                append(
+                    assortative_incidence,
+                    core_periphery_incidence
+                ),
+                disassortative_incidence
+            )
+            netids <- paste0(rep(c("as", "cp", "dis"), each = M), ".", seq(1, M))
+            incidence_matrices <- setNames(incidence_matrices, netids)
 
-        return(incidence_matrices)
+            return(incidence_matrices)
+        })
     })
 })
 
 names(matrices_lists) <- models
 for (model in models) {
     names(matrices_lists[[model]]) <- epsilons
+    for (eps in epsilons) {
+        names(matrices_lists[[model]][[as.character(eps)]]) <- repetitions
+    }
 }
 
 results <- future.apply::future_lapply(
@@ -179,12 +184,13 @@ results <- future.apply::future_lapply(
         current_pi <- pi
         current_rho <- rho
         current_model <- conditions[s, ]$models
+        rep <- conditions[s, ]$repetitions
 
         cli::cli_text("Starting condition {s} on {nrow(conditions)}")
 
 
         netids <- paste0(rep(c("as", "cp", "dis"), each = M), ".", seq(1, M))
-        incidence_matrices <- matrices_lists[[current_model]][[as.character(eps)]]
+        incidence_matrices <- matrices_lists[[current_model]][[as.character(eps)]][[rep]]
 
         list_collection <- clusterize_bipartite_networks_d_a(
             netlist = incidence_matrices,
