@@ -146,63 +146,143 @@ results <- future.apply::future_lapply(conditions_rows, function(s) {
 
   fit_opts <- list(max_vem_steps = 5000L)
 
-  fitted_bisbmpop_iid <- estimate_colBiSBM(
-    netlist = netlist,
-    colsbm_model = "iid",
-    nb_run = 3L,
-    distribution = "bernoulli",
-    global_opts = list(
-      verbosity = 0,
-      plot_details = 0,
-      nb_cores = parallelly::availableCores(omit = 1)
-    ),
-    fit_opts = fit_opts
+  tryCatch(
+    {
+      random_state <- .Random.seed
+      fitted_bisbmpop_iid <- estimate_colBiSBM(
+        netlist = netlist,
+        colsbm_model = "iid",
+        nb_run = 3L,
+        distribution = "bernoulli",
+        global_opts = list(
+          verbosity = 0,
+          plot_details = 0,
+          nb_cores = parallelly::availableCores(omit = 1)
+        ),
+        fit_opts = fit_opts
+      )
+    },
+    error = function(e) {
+      message("Error in fitting iid model: ", e$message)
+      saveRDS(netlist_generated,
+        file = file.path(temp_dir, paste0(
+          "netlist_generated_iid_condition_", s, "_on_",
+          nrow(conditions), ".Rds"
+        ))
+      )
+      saveRDS(random_state,
+        file = file.path(temp_dir, paste0(
+          "random_state_iid_condition_", s, "_on_",
+          nrow(conditions), ".Rds"
+        ))
+      )
+    }
   )
 
   # Handling a problem with sep_BiSBM$M
   fitted_bisbmpop_iid$sep_BiSBM$M <- fitted_bisbmpop_iid$M
   sep_BiSBM <- fitted_bisbmpop_iid$sep_BiSBM
 
-  fitted_bisbmpop_pi <- estimate_colBiSBM(
-    netlist = netlist,
-    colsbm_model = "pi",
-    nb_run = 3L,
-    distribution = "bernoulli",
-    global_opts = list(
-      verbosity = 0,
-      plot_details = 0,
-      nb_cores = parallelly::availableCores(omit = 1)
-    ),
-    sep_BiSBM = sep_BiSBM,
-    fit_opts = fit_opts
+  tryCatch(
+    {
+      random_state <- .Random.seed
+      fitted_bisbmpop_pi <- estimate_colBiSBM(
+        netlist = netlist,
+        colsbm_model = "pi",
+        nb_run = 3L,
+        distribution = "bernoulli",
+        global_opts = list(
+          verbosity = 0,
+          plot_details = 0,
+          nb_cores = parallelly::availableCores(omit = 1)
+        ),
+        sep_BiSBM = sep_BiSBM,
+        fit_opts = fit_opts
+      )
+    },
+    error = function(e) {
+      message("Error in fitting pi model: ", e$message)
+      saveRDS(netlist_generated,
+        file = file.path(temp_dir, paste0(
+          "netlist_generated_pi_condition_", s, "_on_",
+          nrow(conditions), ".Rds"
+        ))
+      )
+      saveRDS(random_state,
+        file = file.path(temp_dir, paste0(
+          "random_state_pi_condition_", s, "_on_",
+          nrow(conditions), ".Rds"
+        ))
+      )
+    }
   )
 
-  fitted_bisbmpop_rho <- estimate_colBiSBM(
-    netlist = netlist,
-    colsbm_model = "rho",
-    nb_run = 3L,
-    distribution = "bernoulli",
-    global_opts = list(
-      verbosity = 0,
-      plot_details = 0,
-      nb_cores = parallelly::availableCores(omit = 1)
-    ),
-    sep_BiSBM = sep_BiSBM,
-    fit_opts = fit_opts
+  tryCatch(
+    {
+      random_state <- .Random.seed
+      fitted_bisbmpop_rho <- estimate_colBiSBM(
+        netlist = netlist,
+        colsbm_model = "rho",
+        nb_run = 3L,
+        distribution = "bernoulli",
+        global_opts = list(
+          verbosity = 0,
+          plot_details = 0,
+          nb_cores = parallelly::availableCores(omit = 1)
+        ),
+        sep_BiSBM = sep_BiSBM,
+        fit_opts = fit_opts
+      )
+    },
+    error = function(e) {
+      message("Error in fitting rho model: ", e$message)
+      saveRDS(netlist_generated,
+        file = file.path(temp_dir, paste0(
+          "netlist_generated_rho_condition_", s, "_on_",
+          nrow(conditions), ".Rds"
+        ))
+      )
+      saveRDS(random_state,
+        file = file.path(temp_dir, paste0(
+          "random_state_rho_condition_", s, "_on_",
+          nrow(conditions), ".Rds"
+        ))
+      )
+    }
   )
 
-  fitted_bisbmpop_pirho <- estimate_colBiSBM(
-    netlist = netlist,
-    colsbm_model = "pirho",
-    nb_run = 3L,
-    distribution = "bernoulli",
-    global_opts = list(
-      verbosity = 0,
-      plot_details = 0,
-      nb_cores = parallelly::availableCores(omit = 1)
-    ),
-    sep_BiSBM = sep_BiSBM,
-    fit_opts = fit_opts
+  tryCatch(
+    {
+      random_state <- .Random.seed
+      fitted_bisbmpop_pirho <- estimate_colBiSBM(
+        netlist = netlist,
+        colsbm_model = "pirho",
+        nb_run = 3L,
+        distribution = "bernoulli",
+        global_opts = list(
+          verbosity = 0,
+          plot_details = 0,
+          nb_cores = parallelly::availableCores(omit = 1)
+        ),
+        sep_BiSBM = sep_BiSBM,
+        fit_opts = fit_opts
+      )
+    },
+    error = function(e) {
+      message("Error in fitting pirho model condition", s, ":", e$message)
+      saveRDS(netlist_generated,
+        file = file.path(temp_dir, paste0(
+          "netlist_generated_pirho_condition_", s, "_on_",
+          nrow(conditions), ".Rds"
+        ))
+      )
+      saveRDS(random_state,
+        file = file.path(temp_dir, paste0(
+          "random_state_pirho_condition_", s, "_on_",
+          nrow(conditions), ".Rds"
+        ))
+      )
+    }
   )
 
   stop_time_condition <- Sys.time()
