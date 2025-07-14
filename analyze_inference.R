@@ -163,8 +163,8 @@ levels(proportion_preferred_data$preferred_model) <- c(
         color = guide_legend(title = "Model")
     ) +
     scale_x_continuous(breaks = seq(from = 0.0, to = 0.24, by = 0.03)) +
-    scale_color_okabe_ito() +
-    scale_fill_okabe_ito() +
+    scale_color_okabe_ito(drop = FALSE) +
+    scale_fill_okabe_ito(drop = FALSE) +
     xlab("$\\epsilon_{\\alpha}$") +
     ylab("Preferred model proportions") +
     theme_minimal() +
