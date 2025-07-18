@@ -95,6 +95,6 @@ results <- future_lapply(seq_along(conditions), function(s) {
     out_df <- cbind(conditions[s, ], data.frame(AUC = auc_value))
     saveRDS(out_df, file = file.path(temp_path, paste0("condition_", s, "_on_", nrow(conditions), ".Rds")))
     return(out_df)
-})
+}, future.seed = TRUE)
 
 saveRDS(do.call("rbind", results), file = save_file)
