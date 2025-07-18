@@ -87,8 +87,8 @@ averaged_print_data <- result_data_frame |>
     summarise(across(-preferred_model, list("avrg" = meanse))) |>
     select(-c(2:10))
 averaged_print_data <- averaged_print_data |>
-    group_by(epsilon_alpha) |>
-    select(which(!grepl("*_(ARI|BICL|secs|un|ov)_*", colnames(averaged_print_data)),
+    group_by(epsilon_alpha) |> # in grepl readd |un|ov
+    select(which(!grepl("*_(ARI|BICL|secs)_*", colnames(averaged_print_data)),
         arr.ind = TRUE
     ))
 
@@ -98,18 +98,30 @@ if (!dir.exists(here("tables", "simulations", "inference"))) {
 
 length_col <- (ncol(averaged_print_data) - 1) / 4
 
-kbl(averaged_print_data,
-    format = "latex", booktabs = FALSE, escape = FALSE, col.names = c(
+all_names <- c(
+    "$\\bm{1}_{\\widehat{Q_1} \\lt 4}$",
+    "$\\bm{1}_{\\widehat{Q_1} = 4}$",
+    "$\\bm{1}_{\\widehat{Q_1} \\gt 4}$",
+    "$\\bm{1}_{\\widehat{Q_2} \\lt 4}$",
+    "$\\bm{1}_{\\widehat{Q_2} = 4}$",
+    "$\\bm{1}_{\\widehat{Q_2} \\gt 4}$"
+)
+
+eq_only_names <- c("$\\bm{1}_{\\widehat{Q_1} = 4}$", "$\\bm{1}_{\\widehat{Q_2} = 4}$")
+
+(kbl(averaged_print_data,
+    format = "html", booktabs = FALSE, escape = FALSE,
+    col.names = c(
         "$\\epsilon_{\\alpha}$",
-        rep(c("$\\bm{1}_{\\widehat{Q_1} = 4}$", "$\\bm{1}_{\\widehat{Q_2} = 4}$"), 4)
+        rep(all_names, 4)
     ),
     linesep = "",
     vline = "|",
-    align = "|l|cc|cc|cc|cc|cccc|cccc|",
-    caption = "The proportion of dataset where the correct number of blocks is selected."
+    # align = "|l|cc|cc|cc|cc|cccc|cccc|",
+    caption = "The proportion of dataset where the correct number of blocks is selected.",
 ) |>
     kable_styling(font_size = 10L) |>
-    add_header_above(c(" ", "iid" = length_col, "$\\\\pi$" = length_col, "$\\\\rho$" = length_col, "$\\\\pi\\\\rho$" = length_col), escape = FALSE, border_left = TRUE, border_right = TRUE, line_sep = 0) |>
+    add_header_above(c(" ", "iid" = length_col, "$\\\\pi$" = length_col, "$\\\\rho$" = length_col, "$\\\\pi\\\\rho$" = length_col), escape = FALSE, border_left = TRUE, border_right = TRUE, line_sep = 0)) |>
     save_kable(
         file = here(
             "tables", "simulations",
