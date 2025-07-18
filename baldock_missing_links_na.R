@@ -44,7 +44,7 @@ conditions <- expand.grid(
     missing_replacement = c(NA, 0)
 )
 
-results <- future_lapply(seq_along(conditions), function(s) {
+results <- future_lapply(seq_len(nrow(conditions)), function(s) {
     missing_network <- conditions[s, ]$possible_missing_network
     epsilon <- conditions[s, ]$epsilon
     repetition <- conditions[s, ]$repetitions
