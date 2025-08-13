@@ -1,0 +1,43 @@
+```{r}
+library(here)
+library(leaflet)
+```
+
+```{R}
+data_folder <- here("data", "dore")
+dore_df <- read.table(file.path(data_folder, "interaction-data.txt"), sep = "\t", header = TRUE)
+dore_networks_matrices <- readRDS(file.path(data_folder, "dore_networks_matrices.Rds"))
+dore_aggregated_networks_matrices <- readRDS(file.path(data_folder, "dore_aggregated_networks_matrices.Rds"))
+dore_supinfo <- read.csv(file.path(data_folder, "dore_supinfo.csv")) |>
+    mutate(Longitude_dec = Longitude_dec |> gsub(pattern = ",", replacement = ".") |> as.numeric(), Latitude_dec = Latitude_dec |> gsub(pattern = ",", replacement = ".") |> as.numeric())
+```
+
+Chamberlain et al semble intéressant pour notre cas:
+```{r}
+dore_supinfo[dore_supinfo$Short_ref |> grepl(pattern = "Chamberlain"), ]
+```
+En effet il y a une étude de Chamberlain et al qui donnent 3 groupes de réseaux.
+
+```{r echo=TRUE, fig.cap="Table pour Chamberlain et al avec les métadonnées des 3 réseaux aggrégés", results="asis"}
+library(knitr)
+chamberlain_supinfo <- dore_supinfo[dore_supinfo$Idweb %in% c(61, 62, 64), ]
+kable(
+    dore_supinfo[dore_supinfo$Idweb %in% c(61, 62, 64), -27]
+)
+```
+
+```{r}
+leaflet() %>%
+    addTiles() %>%
+    # setView(lng = -3.7, lat = 40.4, zoom = 5) %>%
+    addMarkers(lat = chamberlain_supinfo$Latitude_dec, lng = chamberlain_supinfo$Longitude_dec, label = paste(chamberlain_supinfo$Location, chamberlain_supinfo$Idweb))
+```
+
+```{r}
+# chamberlain_1
+```
+
+```{r}
+library(colSBM)
+estimate_colBiSBM()
+```

@@ -6,8 +6,7 @@ dore_df <- read.table(here("data", "dore", "interaction-data.txt"), sep = "\t", 
 dore_df <- dore_df |> mutate(plantfull = paste(plantorder, plantfamily, plantgenus, plantspecies, sep = "_"), insectfull = paste(insectorder, insectfamily, insectgenus, insectspecies, sep = "_"))
 
 # Matrices at network level
-
-dore_networks_matrices <- setNames(lapply(seq(1, max(dore_df$id_network)), function(id) {
+dore_networks_matrices <- setNames(lapply(unique(dore_df$id_network), function(id) {
     table(dore_df[dore_df$id_network == id, c("insectfull", "plantfull")])
 }), nm = unique(dore_df$web))
 
