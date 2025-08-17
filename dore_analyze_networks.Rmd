@@ -54,9 +54,83 @@ chamberlain_networks <- lapply(chamberlain_networks, function(mat) {
 library(future)
 plan("multisession")
 library(colSBM)
-fit <- estimate_colBiSBM(netlist = chamberlain_aggr_networks, net_id = names(chamberlain_aggr_networks), colsbm_model = "iid", global_opts = list(verbosity = 2))
+```
+
+```{r}
+whole_fit_path <- file.path(data_folder, "chamberlain_full.Rds")
+chamberlain1_path <- file.path(data_folder, "chamberlain1.Rds")
+chamberlain2_path <- file.path(data_folder, "chamberlain2.Rds")
+chamberlain3_path <- file.path(data_folder, "chamberlain3.Rds")
+chamberlain123_path <- file.path(data_folder, "chamberlain123.Rds")
+```
+
+```{r}
+if (!file.exists(whole_fit_path)) {
+    fit <- estimate_colBiSBM(netlist = chamberlain_aggr_networks, net_id = names(chamberlain_aggr_networks), colsbm_model = "iid", global_opts = list(verbosity = 2))
+    saveRDS(fit, whole_fit_path)
+} else {
+    fit <- readRDS(whole_fit_path)
+}
 plot(fit)
 fit2plot <- fit$clone()
 fit2plot$best_fit$net_id <- paste0(rep("Chamberlain", 3), seq(1, 3))
 plot(fit2plot$best_fit, type = "meso", mixture = TRUE, values = TRUE)
+```
+
+Besoin de rechercher et lire 
+
+```{r}
+library(stringr)
+names_list_aggr <- names(chamberlain_aggr_networks) |> str_split("-")
+netlist1 <- chamberlain_networks[names_list_aggr[[1]]]
+netlist2 <- chamberlain_networks[names_list_aggr[[2]]]
+netlist3 <- chamberlain_networks[names_list_aggr[[3]]]
+
+if (!file.exists(chamberlain1_path)) {
+    fit1 <- estimate_colBiSBM(netlist = netlist1, colsbm_model = "iid", global_opts = list(verbosity = 2L))
+    saveRDS(fit1, chamberlain1_path)
+} else {
+    fit1 <- readRDS(chamberlain1_path)
+}
+if (!file.exists(chamberlain2_path)) {
+    fit2 <- estimate_colBiSBM(netlist = netlist2, colsbm_model = "iid", global_opts = list(verbosity = 2L))
+    saveRDS(fit2, chamberlain2_path)
+} else {
+    fit2 <- readRDS(chamberlain2_path)
+}
+if (!file.exists(chamberlain3_path)) {
+    fit3 <- estimate_colBiSBM(netlist = netlist3, colsbm_model = "iid", global_opts = list(verbosity = 2L))
+    saveRDS(fit3, chamberlain3_path)
+} else {
+    fit3 <- readRDS(chamberlain3_path)
+}
+```
+
+```{r}
+if (!file.exists(chamberlain123_path)) {
+    fit123 <- estimate_colBiSBM(netlist = chamberlain_networks, net_id = names(chamberlain_networks), colsbm_model = "iid", global_opts = list(verbosity = 2L))
+    saveRDS(fit123, chamberlain123_path)
+} else {
+    fit123 <- readRDS(chamberlain123_path)
+}
+```
+
+En partitionnant 
+```{r}
+aggr_clust_path <- file.path(data_folder, "chamberlain_clust_aggr.Rds")
+clust_path <- file.path(data_folder, "chamberlain_clust.Rds")
+```
+```{r}
+if (!file.exists(aggr_clust_path)) {
+    aggr_clustering <- clusterize_bipartite_networks(netlist = chamberlain_aggr_networks, colsbm_model = "iid", global_opts = list(verbosity = 2L), full_collection_init = fit)
+    saveRDS(aggr_clustering, aggr_clust_path)
+} else {
+    aggr_clustering <- readRDS(aggr_clust_path)
+}
+if (!file.exists(clust_path)) {
+    clustering <- clusterize_bipartite_networks(netlist = chamberlain_networks, colsbm_model = "iid", net_id = names(chamberlain_networks), global_opts = list(verbosity = 2L), full_collection_init = fit123)
+    saveRDS(clustering, aggr_clust_path)
+} else {
+    clustering <- readRDS(aggr_clust_path)
+}
 ```
