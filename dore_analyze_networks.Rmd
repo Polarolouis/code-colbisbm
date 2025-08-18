@@ -129,8 +129,8 @@ if (!file.exists(aggr_clust_path)) {
 }
 if (!file.exists(clust_path)) {
     clustering <- clusterize_bipartite_networks(netlist = chamberlain_networks, colsbm_model = "iid", net_id = names(chamberlain_networks), global_opts = list(verbosity = 2L), full_collection_init = fit123)
-    saveRDS(clustering, aggr_clust_path)
+    saveRDS(clustering, clust_path)
 } else {
-    clustering <- readRDS(aggr_clust_path)
+    clustering <- readRDS(clust_path)
 }
 ```
