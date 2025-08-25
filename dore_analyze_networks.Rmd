@@ -104,6 +104,10 @@ if (!file.exists(chamberlain3_path)) {
 } else {
     fit3 <- readRDS(chamberlain3_path)
 }
+library(patchwork)
+plot(fit1$best_fit, type = "meso", mixture = TRUE, values = T)
+plot(fit2$best_fit, type = "meso", mixture = TRUE, values = T)
+plot(fit3$best_fit, type = "meso", mixture = TRUE, values = T)
 ```
 
 ```{r}
@@ -113,6 +117,7 @@ if (!file.exists(chamberlain123_path)) {
 } else {
     fit123 <- readRDS(chamberlain123_path)
 }
+plot(fit123$best_fit, type = "meso", mixture = TRUE, values = T)
 ```
 
 En partitionnant 
@@ -133,4 +138,12 @@ if (!file.exists(clust_path)) {
 } else {
     clustering <- readRDS(clust_path)
 }
+```
+
+```{r}
+lapply(clustering$partition, function(col) plot(col$best_fit, type = "meso", mixture = T, values = T))
+```
+
+```{r}
+lapply(aggr_clustering$partition, function(col) plot(col$best_fit, type = "meso", mixture = T, values = T))
 ```
