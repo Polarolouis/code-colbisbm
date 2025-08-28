@@ -32,7 +32,7 @@ auc_df <-
         model,
         "sep", "iid", "pi", "rho", "pirho"
     )) |>
-    mutate(missing_replacement = ifelse(missing_replacement == 0, "Missing Links", "NA"))
+    mutate(missing_replacement = ifelse(is.na(missing_replacement), "Missing Dyads", "Missing Links"))
 
 levels(auc_df[["model"]]) <- levels(auc_df[["model"]]) |>
     str_replace(fixed("iid"), "$iid$") |>
@@ -45,8 +45,12 @@ levels(auc_df[["model"]]) <- levels(auc_df[["model"]]) |>
     geom_boxplot(aes(fill = model)) +
     facet_wrap(. ~ missing_replacement, ncol = 2L) +
     scale_fill_okabe_ito() +
+    labs(fill = "Model") +
     xlab("$p_{\\mbox{mis}}$") +
+    ylab("ROC AUC") +
+    ylim(0.8, 0.91) +
     theme_bw() +
+    scale_y_continuous(n.breaks = 5) +
     theme(aspect.ratio = 0.8))
 
 fig_folder <- here(
