@@ -41,15 +41,16 @@ levels(auc_df[["model"]]) <- levels(auc_df[["model"]]) |>
     str_replace("rho$", "$\\\\rho$")
 
 (auc_plot <- ggplot(auc_df) +
-    aes(y = AUC, x = as.factor(epsilon), fill = model) +
-    geom_boxplot(aes(fill = model)) +
+    aes(y = AUC, x = as.factor(epsilon), fill = model, color = model) +
+    geom_boxplot(aes(fill = model), notch = TRUE) +
     facet_wrap(. ~ missing_replacement, ncol = 2L) +
-    scale_fill_okabe_ito() +
-    labs(fill = "Model") +
+    scale_color_okabe_ito() +
+    scale_fill_okabe_ito(alpha = 0.5) +
+    labs(fill = "Model", color = "Model") +
     xlab("$p_{\\mbox{mis}}$") +
     ylab("ROC AUC") +
     ylim(0.8, 0.91) +
-    theme_bw() +
+    theme_minimal() +
     scale_y_continuous(n.breaks = 5) +
     theme(aspect.ratio = 0.8))
 
