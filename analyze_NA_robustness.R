@@ -76,7 +76,8 @@ lapply(c("iid", "\\pi", "\\rho", "\\pi\\rho"), function(model_name) {
             color = guide_legend(title = "Model")
         ) +
         ylim(c(0.5, 1)) +
-        theme_minimal()
+        theme_minimal() +
+        theme(axis.text.x = element_text(size = 5))
 }) -> auc_plots_modular
 
 (auc_plot_modular <- wrap_plots(auc_plots_modular) + plot_layout(axis_titles = "collect"))
@@ -105,7 +106,8 @@ lapply(c("iid", "\\pi", "\\rho", "\\pi\\rho"), function(model_name) {
             color = guide_legend(title = "Model")
         ) +
         ylim(c(0.5, 1)) +
-        theme_minimal()
+        theme_minimal() +
+        theme(axis.text.x = element_text(size = 5))
 }) -> auc_plots_nested
 
 (auc_plot_nested <- wrap_plots(auc_plots_nested) + plot_layout(axis_titles = "collect"))
@@ -118,17 +120,20 @@ if (!dir.exists(output_tikz_folder)) {
     dir.create(output_tikz_folder, recursive = TRUE)
 }
 
+width_tikz <- 6
+height_tikz <- 3
+
 tikz(
-    file = file.path(output_tikz_folder, "auc-modular.tex"), width = 6.5,
-    height = 4.5,
+    file = file.path(output_tikz_folder, "auc-modular.tex"), width = width_tikz,
+    height = height_tikz,
     standAlone = TRUE
 )
 print(auc_plot_modular)
 dev.off()
 
 tikz(
-    file = file.path(output_tikz_folder, "auc-nested.tex"), width = 6.5,
-    height = 4.5,
+    file = file.path(output_tikz_folder, "auc-nested.tex"), width = width_tikz,
+    height = height_tikz,
     standAlone = TRUE
 )
 print(auc_plot_nested)
@@ -188,12 +193,12 @@ lapply(c("iid", "\\pi", "\\rho", "\\pi\\rho"), function(model_name) {
         facet_grid(dim ~ ., labeller = labeller(dim = dim.labs)) +
         theme_minimal() +
         scale_y_continuous(n.breaks = 3) +
-        theme(axis.text.x = element_text(size = 5))
+        theme(axis.text.x = element_text(size = 5), strip.text = element_text(size = 7))
 }) -> ari_plots_modular
 (ari_plot_modular <- wrap_plots(ari_plots_modular) + plot_layout(axis_titles = "collect"))
 tikz(
-    file = file.path(output_tikz_folder, "ari-dim-modular.tex"), width = 7,
-    height = 4,
+    file = file.path(output_tikz_folder, "ari-dim-modular.tex"), width = width_tikz,
+    height = height_tikz,
     standAlone = TRUE
 )
 print(ari_plot_modular)
@@ -224,12 +229,12 @@ lapply(c("iid", "\\pi", "\\rho", "\\pi\\rho"), function(model_name) {
         scale_color_okabe_ito(order = c(color, 1)) +
         facet_grid(dim ~ ., labeller = labeller(dim = dim.labs)) +
         theme_minimal() +
-        theme(axis.text.x = element_text(size = 5))
+        theme(axis.text.x = element_text(size = 5), strip.text = element_text(size = 7))
 }) -> ari_plots_nested
 (ari_plot_nested <- wrap_plots(ari_plots_nested) + plot_layout(axis_titles = "collect"))
 tikz(
-    file = file.path(output_tikz_folder, "ari-dim-nested.tex"), width = 6.5,
-    height = 4,
+    file = file.path(output_tikz_folder, "ari-dim-nested.tex"), width = width_tikz,
+    height = height_tikz,
     standAlone = TRUE
 )
 print(ari_plot_nested)
