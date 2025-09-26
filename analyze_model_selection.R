@@ -128,7 +128,7 @@ plot_pi_rho <- ggplot(model_comparison_eps_pi_rho, aes(
     scale_fill_okabe_ito(order = 2L:9L) +
     facet_nested("$\\epsilon_{\\rho}$" + factor(epsilon_rho, levels = rev(unique(epsilon_rho))) ~ "$\\epsilon_{\\pi}$" + epsilon_pi) +
     theme_minimal() +
-    theme(axis.text.y = element_text(size = 6))
+    theme(axis.text.y = element_text(size = 6), legend.position = "bottom")
 plot_pi_rho
 output_tikz_folder <- here(
     "tikz", "simulations",
