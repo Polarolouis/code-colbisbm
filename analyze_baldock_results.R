@@ -189,3 +189,47 @@ length(plants_e_and_r)
 
 plants_all <- intersect(plants_b_and_l, plants_e_and_r)
 length(plants_all)
+
+
+
+design <-
+    c(area(2, 2, 4, 4), area(1, 2, r = 4), area(2, 1, 4))
+plot(design)
+
+
+my_meso_plot <- function(best_fit) {
+    plot(best_fit, type = "meso", values = TRUE, mixture = TRUE, text_size = 5.5) + plot_layout(guides = "collect") & theme(legend.position = "bottom", text = element_text(family = "serif"), legend.title = element_text(size = 12), axis.text = element_text(size = 11))
+}
+
+datalist <- readRDS(here("applications", "baldock", "baldock.Rds"))
+fit_iid_1 <- datalist$iid.3$partition[[1]]
+fit_iid_2 <- datalist$iid.3$partition[[2]]
+class(fit_iid_1) <- c("fitBipartiteSBMPop", "R6")
+class(fit_iid_2) <- c("fitBipartiteSBMPop", "R6")
+fit_iid_1$net_id <- str_c("Kenya-", fit_iid_1$net_id |> str_replace_all("Baldock2011_", ""))
+fit_iid_2$net_id <- fit_iid_2$net_id |> str_replace_all("Baldock201[1,9]_", "Eng-")
+design_mat <- "AAABBBBB"
+(iid_plot <- wrap_plots("A" = my_meso_plot(fit_iid_1), "B" = my_meso_plot(fit_iid_2)) + plot_layout(guides = "collect", design = design_mat) &
+    theme(legend.position = "bottom", legend.direction = "horizontal", legend.box = "vertical"))
+
+
+
+ggsave("figures/applications/baldock/baldock-iid-clust.pdf", iid_plot)
+fit_pirho_1 <- datalist$pirho.4$partition[[1]]
+
+class(fit_pirho_1) <- c("fitBipartiteSBMPop", "R6")
+fit_pirho_1$net_id <- fit_pirho_1$net_id |>
+    str_replace("Baldock2011_", "Kenya-") |>
+    str_replace("Baldock2011_", "") |>
+    str_replace_all("Baldock2019_", "Eng-")
+(pirho_plot <- my_meso_plot(fit_pirho_1))
+ggsave("figures/applications/baldock/baldock-pirho-clust.pdf", pirho_plot)
+
+library(tikzDevice)
+options(tikzDocumentDeclaration = "\\documentclass[10pt]{standalone}")
+tikz(file = "figures/applications/baldock/baldock-iid-clust.tex", width = 10.3, height = 7.53, standAlone = TRUE)
+iid_plot
+dev.off()
+tikz(file = "figures/applications/baldock/baldock-pirho-clust.tex", width = 10.3, height = 7.53, standAlone = TRUE)
+pirho_plot
+dev.off()
