@@ -52,7 +52,7 @@ levels(auc_df[["model"]]) <- levels(auc_df[["model"]]) |>
     ylim(0.8, 0.91) +
     theme_minimal() +
     scale_y_continuous(n.breaks = 5) +
-    theme(aspect.ratio = 0.8))
+    theme(aspect.ratio = 0.8, legend.position = "bottom"))
 
 fig_folder <- here(
     "figures", "simulations",
@@ -64,7 +64,7 @@ if (!dir.exists(fig_folder)) {
 
 tikz(
     file = file.path(fig_folder, "auc-model.tex"), width = 6.5,
-    height = 4.5,
+    height = 3,
     standAlone = TRUE
 )
 print(auc_plot)
