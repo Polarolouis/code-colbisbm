@@ -32,6 +32,18 @@ missing_links_list <- lapply(baldock_matrices, function(mat) {
     )
 })
 
+# For VGAE
+
+for (name in names(baldock_matrices)) {
+    write.csv(missing_links_list[[name]], paste0("data/baldock_missing_links_", name, ".csv"), row.names = FALSE)
+}
+
+expand.grid(
+    possible_missing_network = names(baldock_matrices),
+    repetitions = repetitions,
+    epsilon = epsilons
+) |> write.csv("data/baldock_missing_links_conditions.csv", row.names = FALSE)
+
 epsilons <- seq(0.1, 0.8, by = 0.1)
 possible_missing_network <- seq(1, length(baldock_matrices))
 repetitions <- seq(1, 3)
