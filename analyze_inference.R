@@ -118,7 +118,7 @@ eq_only_names <- c("$\\bm{1}_{\\widehat{Q_1} = 4}$", "$\\bm{1}_{\\widehat{Q_2} =
     linesep = "",
     vline = "|",
     # align = "|l|cc|cc|cc|cc|cccc|cccc|",
-    caption = "The proportion of dataset where the correct number of blocks is selected.",
+    caption = "\\textit{Assessing the quality of estimation}: proportion of datasets where the correct numbers of blocks are selected.",
 ) |>
     kable_styling(font_size = 10L) |>
     add_header_above(c(" ", "iid" = length_col, "$\\\\pi$" = length_col, "$\\\\rho$" = length_col, "$\\\\pi\\\\rho$" = length_col), escape = FALSE, border_left = TRUE, border_right = TRUE, line_sep = 0)) |>

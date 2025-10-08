@@ -231,8 +231,8 @@ kbl(bloc_recovery_df,
         "$\\bm{1}_{\\widehat{Q_2}_{\\pi\\rho}=3}$"
     ),
     align = "|ll|cc|cc|cc|cc|c|",
-    caption = "The proportion of dataset where the correct number of blocks is
-        selected. Only show results for $\\epsilon_{\\rho}\\in \\{0, 0.14, 0.28\\}$.\\label{tab:model-selection-block-recovery}",
+    caption = "\\textit{From fixed  to varying block proportions}. Proportion of dataset where the correct number of blocks is
+        selected. Only shows results for $\\epsilon_{\\rho}\\in \\{0, 0.14, 0.28\\}$.\\label{tab:model-selection-block-recovery}",
     position = "!ht",
 ) |>
     add_header_above(c(
