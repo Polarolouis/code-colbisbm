@@ -52,7 +52,10 @@ levels(auc_df[["model"]]) <- levels(auc_df[["model"]]) |>
 
 library(patchwork)
 
-lapply(c("iid", "\\pi", "\\rho", "\\pi\\rho"), function(model_name) {
+models_to_plot <- c("iid", "\\pi\\rho") # c("iid", "\\pi", "\\rho", "\\pi\\rho")
+all_models_to_plot <- c("iid", "\\pi", "\\rho", "\\pi\\rho")
+
+lapply(models_to_plot, function(model_name) {
     color <- switch(model_name,
         iid = 2,
         "\\pi" = 3,
@@ -82,7 +85,7 @@ lapply(c("iid", "\\pi", "\\rho", "\\pi\\rho"), function(model_name) {
 
 (auc_plot_modular <- wrap_plots(auc_plots_modular) + plot_layout(axis_titles = "collect"))
 
-lapply(c("iid", "\\pi", "\\rho", "\\pi\\rho"), function(model_name) {
+lapply(models_to_plot, function(model_name) {
     color <- switch(model_name,
         iid = 2,
         "\\pi" = 3,
@@ -112,6 +115,67 @@ lapply(c("iid", "\\pi", "\\rho", "\\pi\\rho"), function(model_name) {
 
 (auc_plot_nested <- wrap_plots(auc_plots_nested) + plot_layout(axis_titles = "collect"))
 
+lapply(all_models_to_plot, function(model_name) {
+    color <- switch(model_name,
+        iid = 2,
+        "\\pi" = 3,
+        "\\rho" = 4,
+        "\\pi\\rho" = 5
+    )
+
+    auc_df |>
+        filter(struct == "modular") |>
+        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$"))) |>
+        # Remove model_name from sep-model_name
+        mutate(model = str_replace(model, fixed(paste0("sep-$", model_name, "$")), "sep")) |>
+        ggplot() +
+        aes(x = factor(prop_NAs), y = auc, fill = model, color = model) +
+        geom_boxplot(notch = TRUE) +
+        labs(x = "$p_{\\mbox{mis}}$", y = "ROC AUC") +
+        scale_fill_okabe_ito(order = c(color, 1), alpha = 0.5) +
+        scale_color_okabe_ito(order = c(color, 1)) +
+        guides(
+            fill = guide_legend(title = "Model"),
+            color = guide_legend(title = "Model")
+        ) +
+        ylim(c(0.5, 1)) +
+        theme_minimal() +
+        theme(axis.text.x = element_text(size = 5))
+}) -> auc_plots_modular_all
+
+(auc_plot_modular_all <- wrap_plots(auc_plots_modular_all) + plot_layout(axis_titles = "collect"))
+
+lapply(all_models_to_plot, function(model_name) {
+    color <- switch(model_name,
+        iid = 2,
+        "\\pi" = 3,
+        "\\rho" = 4,
+        "\\pi\\rho" = 5
+    )
+
+    auc_df |>
+        filter(struct == "nested") |>
+        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$"))) |>
+        # Remove model_name from sep-model_name
+        mutate(model = str_replace(model, fixed(paste0("sep-$", model_name, "$")), "sep")) |>
+        ggplot() +
+        aes(x = factor(prop_NAs), y = auc, fill = model, color = model) +
+        geom_boxplot(notch = TRUE) +
+        labs(x = "$p_{\\mbox{mis}}$", y = "ROC AUC") +
+        scale_fill_okabe_ito(order = c(color, 1), alpha = 0.5) +
+        scale_color_okabe_ito(order = c(color, 1)) +
+        guides(
+            fill = guide_legend(title = "Model"),
+            color = guide_legend(title = "Model")
+        ) +
+        ylim(c(0.5, 1)) +
+        theme_minimal() +
+        theme(axis.text.x = element_text(size = 5))
+}) -> auc_plots_nested_all
+
+(auc_plot_nested_all <- wrap_plots(auc_plots_nested_all) + plot_layout(axis_titles = "collect"))
+
+
 output_tikz_folder <- here(
     "tikz", "simulations",
     "na_robustness"
@@ -137,6 +201,22 @@ tikz(
     standAlone = TRUE
 )
 print(auc_plot_nested)
+dev.off()
+
+tikz(
+    file = file.path(output_tikz_folder, "auc-modular-all.tex"), width = width_tikz,
+    height = height_tikz,
+    standAlone = TRUE
+)
+print(auc_plot_modular_all)
+dev.off()
+
+tikz(
+    file = file.path(output_tikz_folder, "auc-nested-all.tex"), width = width_tikz,
+    height = height_tikz,
+    standAlone = TRUE
+)
+print(auc_plot_nested_all)
 dev.off()
 
 
@@ -167,7 +247,7 @@ ari_df[["dim"]] <- relevel(ari_df[["dim"]], ref = "row")
 dim.labs <- c("On rows", "On columns")
 names(dim.labs) <- c("row", "col")
 
-lapply(c("iid", "\\pi", "\\rho", "\\pi\\rho"), function(model_name) {
+lapply(models_to_plot, function(model_name) {
     color <- switch(model_name,
         iid = 2,
         "\\pi" = 3,
@@ -204,7 +284,44 @@ tikz(
 print(ari_plot_modular)
 dev.off()
 
-lapply(c("iid", "\\pi", "\\rho", "\\pi\\rho"), function(model_name) {
+lapply(all_models_to_plot, function(model_name) {
+    color <- switch(model_name,
+        iid = 2,
+        "\\pi" = 3,
+        "\\rho" = 4,
+        "\\pi\\rho" = 5
+    )
+
+    ari_df |>
+        filter(struct == "modular") |>
+        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$"))) |>
+        # Remove model_name from sep-model_name
+        mutate(model = str_replace(model, fixed(paste0("sep-$", model_name, "$")), "sep")) |>
+        ggplot() +
+        aes(x = factor(prop_NAs), y = ari, fill = model, color = model) +
+        geom_boxplot(notch = TRUE) +
+        labs(x = "$p_{\\mbox{mis}}$", y = "ARI") +
+        guides(
+            fill = guide_legend(title = "Model"),
+            color = guide_legend(title = "Model")
+        ) +
+        scale_fill_okabe_ito(order = c(color, 1), alpha = 0.5) +
+        scale_color_okabe_ito(order = c(color, 1)) +
+        facet_grid(dim ~ ., labeller = labeller(dim = dim.labs)) +
+        theme_minimal() +
+        scale_y_continuous(n.breaks = 3) +
+        theme(axis.text.x = element_text(size = 5), strip.text = element_text(size = 7))
+}) -> ari_plots_modular_all
+(ari_plot_modular_all <- wrap_plots(ari_plots_modular_all) + plot_layout(axis_titles = "collect"))
+tikz(
+    file = file.path(output_tikz_folder, "ari-dim-modular-all.tex"), width = width_tikz,
+    height = height_tikz,
+    standAlone = TRUE
+)
+print(ari_plot_modular_all)
+dev.off()
+
+lapply(models_to_plot, function(model_name) {
     color <- switch(model_name,
         iid = 2,
         "\\pi" = 3,
@@ -238,4 +355,40 @@ tikz(
     standAlone = TRUE
 )
 print(ari_plot_nested)
+dev.off()
+
+lapply(all_models_to_plot, function(model_name) {
+    color <- switch(model_name,
+        iid = 2,
+        "\\pi" = 3,
+        "\\rho" = 4,
+        "\\pi\\rho" = 5
+    )
+
+    ari_df |>
+        filter(struct == "nested") |>
+        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$"))) |>
+        # Remove model_name from sep-model_name
+        mutate(model = str_replace(model, fixed(paste0("sep-$", model_name, "$")), "sep")) |>
+        ggplot() +
+        aes(x = factor(prop_NAs), y = ari, fill = model, color = model) +
+        geom_boxplot(notch = TRUE) +
+        labs(x = "$p_{\\mbox{mis}}$", y = "ARI") +
+        guides(
+            fill = guide_legend(title = "Model"),
+            color = guide_legend(title = "Model")
+        ) +
+        scale_fill_okabe_ito(order = c(color, 1), alpha = 0.5) +
+        scale_color_okabe_ito(order = c(color, 1)) +
+        facet_grid(dim ~ ., labeller = labeller(dim = dim.labs)) +
+        theme_minimal() +
+        theme(axis.text.x = element_text(size = 5), strip.text = element_text(size = 7))
+}) -> ari_plots_nested_all
+(ari_plot_nested_all <- wrap_plots(ari_plots_nested_all) + plot_layout(axis_titles = "collect"))
+tikz(
+    file = file.path(output_tikz_folder, "ari-dim-nested-all-models.tex"), width = width_tikz,
+    height = height_tikz,
+    standAlone = TRUE
+)
+print(ari_plot_nested_all)
 dev.off()
