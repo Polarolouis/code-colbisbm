@@ -209,9 +209,10 @@ class(fit_iid_2) <- c("fitBipartiteSBMPop", "R6")
 fit_iid_1$net_id <- str_c("Kenya-", fit_iid_1$net_id |> str_replace_all("Baldock2011_", ""))
 fit_iid_2$net_id <- fit_iid_2$net_id |> str_replace_all("Baldock201[1,9]_", "Eng-")
 design_mat <- "AAABBBBB"
-(iid_plot <- wrap_plots("A" = my_meso_plot(fit_iid_1), "B" = my_meso_plot(fit_iid_2)) + plot_layout(guides = "collect", design = design_mat) &
-    theme(legend.position = "bottom", legend.direction = "horizontal", legend.box = "vertical"))
+# (iid_plot <- wrap_plots("A" = my_meso_plot(fit_iid_1), "B" = my_meso_plot(fit_iid_2)) + plot_layout(guides = "collect", design = design_mat) &
+#     theme(legend.position = "bottom", legend.direction = "horizontal", legend.box = "vertical"))
 
+(iid_plot <- my_meso_plot(fit_iid_2) & guides(fill = "none"))
 
 
 ggsave("figures/applications/baldock/baldock-iid-clust.pdf", iid_plot)
@@ -222,7 +223,7 @@ fit_pirho_1$net_id <- fit_pirho_1$net_id |>
     str_replace("Baldock2011_", "Kenya-") |>
     str_replace("Baldock2011_", "") |>
     str_replace_all("Baldock2019_", "Eng-")
-(pirho_plot <- my_meso_plot(fit_pirho_1))
+(pirho_plot <- my_meso_plot(fit_pirho_1) & guides(fill = "none"))
 ggsave("figures/applications/baldock/baldock-pirho-clust.pdf", pirho_plot)
 
 library(tikzDevice)
