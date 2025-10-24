@@ -25,6 +25,14 @@ results_df <- rbind(results_df, readRDS(here(data_dir, "missing_links_sep.Rds"))
 results_df <- results_df |>
     select(-c(repetitions))
 
+vgae_df <- read.csv("data/dore/baldock_auc_vgae_results.csv")
+vgae_df <- vgae_df |>
+    rename(AUC = AUC_VGAE) |>
+    mutate(model = "VGAE", missing_replacement = 0) |>
+    select(names(results_df))
+
+results_df <- rbind(results_df, vgae_df)
+
 auc_df <-
     results_df |>
     mutate_at(vars(model), as.factor) |>

@@ -38,15 +38,50 @@ for (name in names(baldock_matrices)) {
     write.csv(missing_links_list[[name]], paste0("data/baldock_missing_links_", name, ".csv"), row.names = FALSE)
 }
 
-expand.grid(
-    possible_missing_network = names(baldock_matrices),
-    repetitions = repetitions,
-    epsilon = epsilons
-) |> write.csv("data/baldock_missing_links_conditions.csv", row.names = FALSE)
+
 
 epsilons <- seq(0.1, 0.8, by = 0.1)
 possible_missing_network <- seq(1, length(baldock_matrices))
 repetitions <- seq(1, 3)
+
+vgae_conditions <- expand.grid(
+    possible_missing_network = possible_missing_network,
+    repetitions = repetitions,
+    epsilon = epsilons
+)
+write.csv(vgae_conditions, "data/baldock_missing_links_conditions.csv", row.names = FALSE)
+
+vgae_data_path <- file.path("data", "dore", "vgae_data")
+
+if (!dir.exists(vgae_data_path)) {
+    dir.create(vgae_data_path)
+}
+
+lapply(
+    seq_len(nrow(vgae_conditions)),
+    function(s) {
+        missing_network <- vgae_conditions[s, ]$possible_missing_network
+        epsilon <- vgae_conditions[s, ]$epsilon
+        repetition <- vgae_conditions[s, ]$repetitions
+
+        missing_links_matrix <- baldock_matrices[[missing_network]]
+        # names(missing_links_matrix) <- names(baldock_matrices)[missing_network]
+        test_edge_label_index <- missing_links_list[[missing_network]]
+        # Selecting epsilon missing links
+        test_edge_label_index <-
+            test_edge_label_index[1:floor(epsilon * nrow(test_edge_label_index)), ]
+        real_values <- c()
+        for (j in seq_len(nrow(test_edge_label_index))) {
+            real_values <- c(real_values, missing_links_matrix[test_edge_label_index$row[j], test_edge_label_index$col[j]])
+        }
+
+        test_edge_label_df <- test_edge_label_index
+        test_edge_label_df$label <- real_values
+        test_pos_edge_label <- test_edge_label_df[test_edge_label_df$label == 1, ]
+        test_neg_edge_label <- test_edge_label_df[test_edge_label_df$label == 0, ]
+        write.csv(test_edge_label_df, file.path(vgae_data_path, paste0("condition_", s, "_missing_network_", missing_network, "_epsilon_", epsilon, "_repetition_", repetition, ".csv")), row.names = FALSE)
+    }
+)
 
 conditions <- expand.grid(
     possible_missing_network = possible_missing_network,

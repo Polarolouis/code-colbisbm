@@ -60,7 +60,7 @@ df_netclust$model <- df_netclust$model |>
         # c(1L, 8L)
     ) +
     scale_fill_okabe_ito(order = 2L:9L, alpha = 0.5) +
-    xlab("$\\epsilon_{\\alpha}$") +
+    xlab("$\\epsilon$") +
     guides(
         fill = guide_legend(title = "Model"),
         color = guide_legend(title = "Model")
@@ -83,7 +83,7 @@ df_netclust$model <- df_netclust$model |>
     lims(
         y = c(0, 8)
     ) +
-    xlab("$\\epsilon_{\\alpha}$") +
+    xlab("$\\epsilon$") +
     guides(
         fill = guide_legend(title = "Model"),
         color = guide_legend(title = "Model")
