@@ -44,9 +44,10 @@ vgae_conditions <- expand.grid(
     repetitions = repetitions,
     epsilon = epsilons
 )
-write.csv(vgae_conditions, "data/baldock_missing_links_conditions.csv", row.names = FALSE)
-
 vgae_data_path <- file.path("data", "dore", "vgae_data")
+
+write.csv(vgae_conditions, file.path(vgae_data_path, "baldock_missing_links_conditions.csv"), row.names = FALSE)
+
 
 if (!dir.exists(vgae_data_path)) {
     dir.create(vgae_data_path)
