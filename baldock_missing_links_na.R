@@ -71,6 +71,10 @@ lapply(
             real_values <- c(real_values, missing_links_matrix[real_edge_label_index$row[j], real_edge_label_index$col[j]])
         }
 
+        for (j in seq_len(nrow(real_edge_label_index))) {
+            missing_links_matrix[real_edge_label_index$row[j], real_edge_label_index$col[j]] <- 0
+        }
+
         train_edge_index <- which(missing_links_matrix == 1, arr.ind = TRUE)
         train_edge_index <- as.data.frame(train_edge_index)
         colnames(train_edge_index) <- c("row", "col")
