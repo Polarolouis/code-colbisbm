@@ -34,11 +34,6 @@ missing_links_list <- lapply(baldock_matrices, function(mat) {
 
 # For VGAE
 
-for (name in names(baldock_matrices)) {
-    write.csv(missing_links_list[[name]], paste0("data/baldock_missing_links_", name, ".csv"), row.names = FALSE)
-}
-
-
 
 epsilons <- seq(0.1, 0.8, by = 0.1)
 possible_missing_network <- seq(1, length(baldock_matrices))
@@ -66,20 +61,28 @@ lapply(
 
         missing_links_matrix <- baldock_matrices[[missing_network]]
         # names(missing_links_matrix) <- names(baldock_matrices)[missing_network]
-        test_edge_label_index <- missing_links_list[[missing_network]]
+        real_edge_label_index <- missing_links_list[[missing_network]]
         # Selecting epsilon missing links
-        test_edge_label_index <-
-            test_edge_label_index[1:floor(epsilon * nrow(test_edge_label_index)), ]
+        real_edge_label_index <-
+            real_edge_label_index[1:floor(epsilon * nrow(real_edge_label_index)), ]
         real_values <- c()
-        for (j in seq_len(nrow(test_edge_label_index))) {
-            real_values <- c(real_values, missing_links_matrix[test_edge_label_index$row[j], test_edge_label_index$col[j]])
+        for (j in seq_len(nrow(real_edge_label_index))) {
+            real_values <- c(real_values, missing_links_matrix[real_edge_label_index$row[j], real_edge_label_index$col[j]])
         }
 
-        test_edge_label_df <- test_edge_label_index
-        test_edge_label_df$label <- real_values
-        test_pos_edge_label <- test_edge_label_df[test_edge_label_df$label == 1, ]
-        test_neg_edge_label <- test_edge_label_df[test_edge_label_df$label == 0, ]
-        write.csv(test_edge_label_df, file.path(vgae_data_path, paste0("condition_", s, "_missing_network_", missing_network, "_epsilon_", epsilon, "_repetition_", repetition, ".csv")), row.names = FALSE)
+        train_edge_index <- which(missing_links_matrix == 1, arr.ind = TRUE)
+        train_edge_index <- as.data.frame(train_edge_index)
+        colnames(train_edge_index) <- c("row", "col")
+        train_edge_index$split <- "train"
+        train_edge_index$label <- 1
+
+        real_edge_label_df <- real_edge_label_index
+        real_edge_label_df$label <- real_values
+        real_edge_label_df$split <- "test"
+
+        combined_df <- rbind(train_edge_index, real_edge_label_df)
+
+        write.csv(combined_df, file.path(vgae_data_path, paste0("condition_", s, "_missing_network_", missing_network, "_epsilon_", epsilon, "_repetition_", repetition, ".csv")), row.names = FALSE)
     }
 )
 
