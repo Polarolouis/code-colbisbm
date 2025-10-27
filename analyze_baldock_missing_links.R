@@ -25,9 +25,14 @@ results_df <- rbind(results_df, readRDS(here(data_dir, "missing_links_sep.Rds"))
 results_df <- results_df |>
     select(-c(repetitions))
 
-vgae_df <- read.csv("data/dore/baldock_auc_vgae_results.csv")
+vgae_df <- read.csv("data/dore/baldock_vgae_metrics_per_epsilon.csv")
+
+ggplot(vgae_df) +
+    aes(x = as.factor(Epsilon), y = AUC, color = as.factor(Missing.Network)) +
+    geom_boxplot()
+
 vgae_df <- vgae_df |>
-    rename(AUC = AUC_VGAE) |>
+    rename(AUC = AUC, epsilon = Epsilon, possible_missing_network = Missing.Network) |>
     mutate(model = "VGAE", missing_replacement = 0) |>
     select(names(results_df))
 
