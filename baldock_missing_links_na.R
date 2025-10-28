@@ -19,11 +19,28 @@ baldock_matrices <- readRDS(here("data", "baldock2019-binary-matrices.Rds"))
 
 max_prop_NAs <- 0.9
 
-missing_links_list <- lapply(baldock_matrices, function(mat) {
-    nb_links_to_remove <- floor(max_prop_NAs * (nrow(mat) * ncol(mat)))
+# missing_links_list <- lapply(baldock_matrices, function(mat) {
+#     nb_dyads_to_remove <- floor(max_prop_NAs * (nrow(mat) * ncol(mat)))
 
-    row_nodes <- sample.int(nrow(mat), size = nb_links_to_remove, replace = TRUE)
-    col_nodes <- sample.int(ncol(mat), size = nb_links_to_remove, replace = TRUE)
+#     row_nodes <- sample.int(nrow(mat), size = nb_dyads_to_remove, replace = TRUE)
+#     col_nodes <- sample.int(ncol(mat), size = nb_dyads_to_remove, replace = TRUE)
+
+#     data.frame(
+#         row = row_nodes,
+#         col = col_nodes,
+#         stringsAsFactors = FALSE
+#     )
+# })
+
+missing_links_list <- lapply(baldock_matrices, function(mat) {
+    links_df <- which(mat == 1, arr.ind = TRUE) |>
+        as.data.frame() |>
+        dplyr::rename(row = row, col = col)
+
+    nb_links_to_remove <- floor(max_prop_NAs * nrow(links_df))
+    sampled_indices <- sample.int(nrow(links_df), size = nb_links_to_remove, replace = FALSE)
+    row_nodes <- links_df$row[sampled_indices]
+    col_nodes <- links_df$col[sampled_indices]
 
     data.frame(
         row = row_nodes,
