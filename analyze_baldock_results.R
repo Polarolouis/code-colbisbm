@@ -191,7 +191,6 @@ plants_all <- intersect(plants_b_and_l, plants_e_and_r)
 length(plants_all)
 
 
-
 design <-
     c(area(2, 2, 4, 4), area(1, 2, r = 4), area(2, 1, 4))
 plot(design)
@@ -207,7 +206,7 @@ fit_iid_2 <- datalist$iid.3$partition[[2]]
 class(fit_iid_1) <- c("fitBipartiteSBMPop", "R6")
 class(fit_iid_2) <- c("fitBipartiteSBMPop", "R6")
 fit_iid_1$net_id <- str_c("Kenya-", fit_iid_1$net_id |> str_replace_all("Baldock2011_", ""))
-fit_iid_2$net_id <- fit_iid_2$net_id |> str_replace_all("Baldock201[1,9]_", "Eng-")
+fit_iid_2$net_id <- fit_iid_2$net_id |> str_replace_all("Baldock201[1,9]_", "Brit-")
 design_mat <- "AAABBBBB"
 # (iid_plot <- wrap_plots("A" = my_meso_plot(fit_iid_1), "B" = my_meso_plot(fit_iid_2)) + plot_layout(guides = "collect", design = design_mat) &
 #     theme(legend.position = "bottom", legend.direction = "horizontal", legend.box = "vertical"))
@@ -222,7 +221,7 @@ class(fit_pirho_1) <- c("fitBipartiteSBMPop", "R6")
 fit_pirho_1$net_id <- fit_pirho_1$net_id |>
     str_replace("Baldock2011_", "Kenya-") |>
     str_replace("Baldock2011_", "") |>
-    str_replace_all("Baldock2019_", "Eng-")
+    str_replace_all("Baldock2019_", "Brit-")
 (pirho_plot <- my_meso_plot(fit_pirho_1) & guides(fill = "none"))
 ggsave("figures/applications/baldock/baldock-pirho-clust.pdf", pirho_plot)
 
