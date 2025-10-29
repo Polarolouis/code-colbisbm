@@ -27,16 +27,28 @@ results_df <- results_df |>
 
 vgae_df <- read.csv("data/dore/baldock_vgae_metrics_per_epsilon.csv")
 
-ggplot(vgae_df) +
-    aes(x = as.factor(Epsilon), y = AUC, color = as.factor(Missing.Network)) +
-    geom_boxplot()
+
 
 vgae_df <- vgae_df |>
     rename(AUC = AUC, epsilon = Epsilon, possible_missing_network = Missing.Network) |>
     mutate(model = "VGAE", missing_replacement = 0) |>
     select(names(results_df))
 
-results_df <- rbind(results_df, vgae_df)
+ggplot(vgae_df) +
+    aes(x = as.factor(epsilon), y = AUC, color = as.factor(possible_missing_network)) +
+    geom_boxplot()
+
+sep_vgae_df <- read.csv("data/dore/baldock_sep_vgae_metrics_per_epsilon.csv")
+sep_vgae_df <- sep_vgae_df |>
+    rename(AUC = AUC, epsilon = Epsilon, possible_missing_network = Missing.Network) |>
+    mutate(model = "sepVGAE", missing_replacement = 0) |>
+    select(names(results_df))
+ggplot(sep_vgae_df) +
+    aes(x = as.factor(epsilon), y = AUC, color = as.factor(possible_missing_network)) +
+    geom_boxplot()
+
+
+results_df <- rbind(results_df, vgae_df, sep_vgae_df)
 
 auc_df <-
     results_df |>
