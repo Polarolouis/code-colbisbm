@@ -49,6 +49,23 @@ missing_links_list <- lapply(baldock_matrices, function(mat) {
     )
 })
 
+true_zeros_list <- lapply(baldock_matrices, function(mat) {
+    zeros_df <- which(mat == 0, arr.ind = TRUE) |>
+        as.data.frame() |>
+        dplyr::rename(row = row, col = col)
+
+    nb_zeros_to_remove <- floor(max_prop_NAs * nrow(zeros_df))
+    sampled_indices <- sample.int(nrow(zeros_df), size = nb_zeros_to_remove, replace = FALSE)
+    row_nodes <- zeros_df$row[sampled_indices]
+    col_nodes <- zeros_df$col[sampled_indices]
+
+    data.frame(
+        row = row_nodes,
+        col = col_nodes,
+        stringsAsFactors = FALSE
+    )
+})
+
 # For VGAE
 
 
@@ -80,9 +97,16 @@ lapply(
         missing_links_matrix <- baldock_matrices[[missing_network]]
         # names(missing_links_matrix) <- names(baldock_matrices)[missing_network]
         real_edge_label_index <- missing_links_list[[missing_network]]
+
+        true_zeros_label_index <- true_zeros_list[[missing_network]]
+
+
         # Selecting epsilon missing links
         real_edge_label_index <-
             real_edge_label_index[1:floor(epsilon * nrow(real_edge_label_index)), ]
+        true_zeros_label_index <-
+            true_zeros_label_index[1:nrow(real_edge_label_index), ]
+        real_edge_label_index <- rbind(real_edge_label_index, true_zeros_label_index)
         real_values <- c()
         for (j in seq_len(nrow(real_edge_label_index))) {
             real_values <- c(real_values, missing_links_matrix[real_edge_label_index$row[j], real_edge_label_index$col[j]])
@@ -137,6 +161,9 @@ results <- future_lapply(seq_len(nrow(conditions)), function(s) {
     missing_links <- missing_links_list[[missing_network]]
     # Selecting epsilon missing links
     missing_links <- missing_links[1:floor(epsilon * nrow(missing_links)), ]
+    true_zeroes <- true_zeros_list[[missing_network]]
+    true_zeroes <- true_zeroes[seq_len(nrow(missing_links)), ]
+    missing_links <- rbind(missing_links, true_zeroes)
     real_values <- c()
     for (j in seq_len(nrow(missing_links))) {
         real_values <- c(real_values, missing_links_matrix[missing_links$row[j], missing_links$col[j]])
