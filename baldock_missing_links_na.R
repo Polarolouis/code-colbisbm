@@ -100,6 +100,9 @@ lapply(
 
         true_zeros_label_index <- true_zeros_list[[missing_network]]
 
+        #  Remaining zeroes for train
+        remaining_zeros <- true_zeros_label_index[!(true_zeros_label_index$row %in% real_edge_label_index$row & true_zeros_label_index$col %in% real_edge_label_index$col), ]
+
 
         # Selecting epsilon missing links
         real_edge_label_index <-
@@ -122,11 +125,16 @@ lapply(
         train_edge_index$split <- "train"
         train_edge_index$label <- 1
 
+        train_zero_index <- remaining_zeros
+        train_zero_index$split <- "train"
+        train_zero_index$label <- 0
+
+
         real_edge_label_df <- real_edge_label_index
         real_edge_label_df$label <- real_values
         real_edge_label_df$split <- "test"
 
-        combined_df <- rbind(train_edge_index, real_edge_label_df)
+        combined_df <- rbind(train_edge_index, train_zero_index, real_edge_label_df)
 
         write.csv(combined_df, file.path(vgae_data_path, paste0("condition_", s, "_missing_network_", missing_network, "_epsilon_", epsilon, "_repetition_", repetition, ".csv")), row.names = FALSE)
     }
