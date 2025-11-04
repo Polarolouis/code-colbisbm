@@ -161,9 +161,10 @@ proportion_preferred_data <- result_data_frame |>
     select(-n)
 
 levels(proportion_preferred_data$preferred_model) <- c(
-    "sep", "$iid$", "$\\pi$", "$\\rho$",
+    "sep", "iid", "$\\pi$", "$\\rho$",
     "$\\pi\\rho$"
 )
+
 (plot <- proportion_preferred_data |>
     ggplot() +
     aes(
@@ -185,14 +186,13 @@ levels(proportion_preferred_data$preferred_model) <- c(
         axis.text.x = element_text(angle = -45, vjust = .5, hjust = 0),
         axis.text.y = element_text(size = 6)
     ) +
-    geom_col(position = "stack"))
+    geom_col(position = "stack", show.legend = TRUE))
 
 tikz(
     file = file.path(output_tikz_folder, "model-proportions.tex"), width = 4L,
     height = 3L,
     standAlone = TRUE
 )
-
 print(plot)
 dev.off()
 
@@ -235,11 +235,11 @@ ARI_type.labs <- c("$\\overline{\\mbox{ARI}}_d$", "$\\mbox{ARI}_d$")
 names(ARI_type.labs) <- c("mean", "double")
 
 levels(averaged_data$model) <- c(
-    "sep", "$iid$", "$\\pi$", "$\\rho$",
+    "sep", "iid", "$\\pi$", "$\\rho$",
     "$\\pi\\rho$"
 )
 levels(unaveraged_data$model) <- c(
-    "sep", "$iid$", "$\\pi$", "$\\rho$",
+    "sep", "iid", "$\\pi$", "$\\rho$",
     "$\\pi\\rho$"
 )
 

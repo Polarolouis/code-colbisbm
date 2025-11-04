@@ -45,7 +45,7 @@ auc_df <-
     filter(prop_NAs <= prop_filter)
 
 levels(auc_df[["model"]]) <- levels(auc_df[["model"]]) |>
-    str_replace(fixed("iid"), "$iid$") |>
+    str_replace(fixed("iid"), "iid") |>
     str_replace(fixed("pirho"), "$\\pi\\rho$") |>
     str_replace("pi$", "$\\\\pi$") |>
     str_replace("rho$", "$\\\\rho$")
@@ -65,9 +65,10 @@ lapply(models_to_plot, function(model_name) {
 
     auc_df |>
         filter(struct == "modular") |>
-        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$"))) |>
+        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$")) | str_equal(model, model_name) | str_equal(model, paste0("sep-", model_name))) |>
         # Remove model_name from sep-model_name
         mutate(model = str_replace(model, fixed(paste0("sep-$", model_name, "$")), "sep")) |>
+        mutate(model = str_replace(model, fixed(paste0("sep-", model_name)), "sep")) |>
         ggplot() +
         aes(x = factor(prop_NAs), y = auc, fill = model, color = model) +
         geom_boxplot(notch = TRUE) +
@@ -95,9 +96,10 @@ lapply(models_to_plot, function(model_name) {
 
     auc_df |>
         filter(struct == "nested") |>
-        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$"))) |>
+        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$")) | str_equal(model, model_name) | str_equal(model, paste0("sep-", model_name))) |>
         # Remove model_name from sep-model_name
         mutate(model = str_replace(model, fixed(paste0("sep-$", model_name, "$")), "sep")) |>
+        mutate(model = str_replace(model, fixed(paste0("sep-", model_name)), "sep")) |>
         ggplot() +
         aes(x = factor(prop_NAs), y = auc, fill = model, color = model) +
         geom_boxplot(notch = TRUE) +
@@ -125,9 +127,10 @@ lapply(all_models_to_plot, function(model_name) {
 
     auc_df |>
         filter(struct == "modular") |>
-        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$"))) |>
+        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$")) | str_equal(model, model_name) | str_equal(model, paste0("sep-", model_name))) |>
         # Remove model_name from sep-model_name
         mutate(model = str_replace(model, fixed(paste0("sep-$", model_name, "$")), "sep")) |>
+        mutate(model = str_replace(model, fixed(paste0("sep-", model_name)), "sep")) |>
         ggplot() +
         aes(x = factor(prop_NAs), y = auc, fill = model, color = model) +
         geom_boxplot(notch = TRUE) +
@@ -155,9 +158,10 @@ lapply(all_models_to_plot, function(model_name) {
 
     auc_df |>
         filter(struct == "nested") |>
-        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$"))) |>
+        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$")) | str_equal(model, model_name) | str_equal(model, paste0("sep-", model_name))) |>
         # Remove model_name from sep-model_name
         mutate(model = str_replace(model, fixed(paste0("sep-$", model_name, "$")), "sep")) |>
+        mutate(model = str_replace(model, fixed(paste0("sep-", model_name)), "sep")) |>
         ggplot() +
         aes(x = factor(prop_NAs), y = auc, fill = model, color = model) +
         geom_boxplot(notch = TRUE) +
@@ -238,7 +242,7 @@ ari_df <- results_df |>
     filter(prop_NAs <= prop_filter)
 
 levels(ari_df[["model"]]) <- levels(ari_df[["model"]]) |>
-    str_replace(fixed("iid"), "$iid$") |>
+    str_replace(fixed("iid"), "iid") |>
     str_replace(fixed("pirho"), "$\\pi\\rho$") |>
     str_replace("pi$", "$\\\\pi$") |>
     str_replace("rho$", "$\\\\rho$")
@@ -257,9 +261,10 @@ lapply(models_to_plot, function(model_name) {
 
     ari_df |>
         filter(struct == "modular") |>
-        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$"))) |>
+        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$")) | str_equal(model, model_name) | str_equal(model, paste0("sep-", model_name))) |>
         # Remove model_name from sep-model_name
         mutate(model = str_replace(model, fixed(paste0("sep-$", model_name, "$")), "sep")) |>
+        mutate(model = str_replace(model, fixed(paste0("sep-", model_name)), "sep")) |>
         ggplot() +
         aes(x = factor(prop_NAs), y = ari, fill = model, color = model) +
         geom_boxplot(notch = TRUE) +
@@ -294,9 +299,10 @@ lapply(all_models_to_plot, function(model_name) {
 
     ari_df |>
         filter(struct == "modular") |>
-        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$"))) |>
+        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$")) | str_equal(model, model_name) | str_equal(model, paste0("sep-", model_name))) |>
         # Remove model_name from sep-model_name
         mutate(model = str_replace(model, fixed(paste0("sep-$", model_name, "$")), "sep")) |>
+        mutate(model = str_replace(model, fixed(paste0("sep-", model_name)), "sep")) |>
         ggplot() +
         aes(x = factor(prop_NAs), y = ari, fill = model, color = model) +
         geom_boxplot(notch = TRUE) +
@@ -331,9 +337,10 @@ lapply(models_to_plot, function(model_name) {
 
     ari_df |>
         filter(struct == "nested") |>
-        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$"))) |>
+        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$")) | str_equal(model, model_name) | str_equal(model, paste0("sep-", model_name))) |>
         # Remove model_name from sep-model_name
         mutate(model = str_replace(model, fixed(paste0("sep-$", model_name, "$")), "sep")) |>
+        mutate(model = str_replace(model, fixed(paste0("sep-", model_name)), "sep")) |>
         ggplot() +
         aes(x = factor(prop_NAs), y = ari, fill = model, color = model) +
         geom_boxplot(notch = TRUE) +
@@ -367,9 +374,10 @@ lapply(all_models_to_plot, function(model_name) {
 
     ari_df |>
         filter(struct == "nested") |>
-        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$"))) |>
+        filter(str_equal(model, paste0("$", model_name, "$")) | str_equal(model, paste0("sep-$", model_name, "$")) | str_equal(model, model_name) | str_equal(model, paste0("sep-", model_name))) |>
         # Remove model_name from sep-model_name
         mutate(model = str_replace(model, fixed(paste0("sep-$", model_name, "$")), "sep")) |>
+        mutate(model = str_replace(model, fixed(paste0("sep-", model_name)), "sep")) |>
         ggplot() +
         aes(x = factor(prop_NAs), y = ari, fill = model, color = model) +
         geom_boxplot(notch = TRUE) +

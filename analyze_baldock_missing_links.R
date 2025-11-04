@@ -16,7 +16,9 @@ options(tikzDocumentDeclaration = "\\documentclass[10pt]{standalone}")
 #     tikzLatexPackages = c(getOption("tikzLatexPackages"), "\\usepackage{tikz}")
 # )
 data_dir <- here("simulations", "missing_links")
-filenames <- here(data_dir, "missing_links_baldock_1752848977.14268.Rds")
+# filenames <- here(data_dir, "missing_links_baldock_1752848977.14268.Rds")
+filenames <- here(data_dir, "missing_links_baldock_1761742524.6736.Rds")
+
 
 results_df <- readRDS(filenames)
 
@@ -60,7 +62,7 @@ auc_df <-
     mutate(missing_replacement = ifelse(is.na(missing_replacement), "Missing Dyads", "Missing Links"))
 
 levels(auc_df[["model"]]) <- levels(auc_df[["model"]]) |>
-    str_replace(fixed("iid"), "$iid$") |>
+    str_replace(fixed("iid"), "iid") |>
     str_replace(fixed("pirho"), "$\\pi\\rho$") |>
     str_replace("pi$", "$\\\\pi$") |>
     str_replace("rho$", "$\\\\rho$")
@@ -68,7 +70,23 @@ levels(auc_df[["model"]]) <- levels(auc_df[["model"]]) |>
 (auc_plot <- ggplot(auc_df) +
     aes(y = AUC, x = as.factor(epsilon), fill = model, color = model) +
     geom_boxplot(aes(fill = model), notch = TRUE) +
-    facet_wrap(. ~ missing_replacement, ncol = 2L) +
+    facet_wrap(. ~ missing_replacement,
+        ncol = 2L,
+        scales = "free"
+    ) +
+    scale_color_okabe_ito() +
+    scale_fill_okabe_ito(alpha = 0.5) +
+    labs(fill = "Model", color = "Model") +
+    xlab("$p_{\\mbox{mis}}$") +
+    ylab("ROC AUC") +
+    # ylim(0.8, 0.91) +
+    theme_minimal() +
+    scale_y_continuous(n.breaks = 5) +
+    theme(legend.position = "bottom"))
+
+(auc_plot_missing_links <- ggplot(auc_df |> filter(missing_replacement == "Missing Links")) +
+    aes(y = AUC, x = as.factor(epsilon), fill = model, color = model) +
+    geom_boxplot(aes(fill = model), notch = TRUE) +
     scale_color_okabe_ito() +
     scale_fill_okabe_ito(alpha = 0.5) +
     labs(fill = "Model", color = "Model") +
@@ -77,7 +95,7 @@ levels(auc_df[["model"]]) <- levels(auc_df[["model"]]) |>
     ylim(0.8, 0.91) +
     theme_minimal() +
     scale_y_continuous(n.breaks = 5) +
-    theme(aspect.ratio = 0.8, legend.position = "bottom"))
+    theme(legend.position = "bottom"))
 
 fig_folder <- here(
     "figures", "simulations",
@@ -93,6 +111,14 @@ tikz(
     standAlone = TRUE
 )
 print(auc_plot)
+dev.off()
+
+tikz(
+    file = file.path(fig_folder, "auc-model-missing-links.tex"), width = 10,
+    height = 6.5,
+    standAlone = TRUE
+)
+print(auc_plot_missing_links)
 dev.off()
 
 png(filename = file.path(fig_folder, "auc-model.png"), width = 1200)

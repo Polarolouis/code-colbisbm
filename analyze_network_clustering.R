@@ -36,16 +36,16 @@ df_netclust$model <- factor(df_netclust$model, levels = c(
 # ))
 
 df_netclust$model <- df_netclust$model |>
-    case_match("iid" ~ "$iid$",
+    case_match("iid" ~ "iid",
         "pi" ~ "$\\pi$",
         "rho" ~ "$\\rho$",
         "pirho" ~ "$\\pi\\rho$"
-        # ,"iid_on_pirho" ~ "$iid$ on $\\pi\\rho$"
+        # ,"iid_on_pirho" ~ "iid on $\\pi\\rho$"
         ,
         .ptype = factor(levels = c(
-            "$iid$", "$\\pi$",
+            "iid", "$\\pi$",
             "$\\rho$", "$\\pi\\rho$"
-            # ,"$iid$ on $\\pi\\rho$"
+            # ,"iid on $\\pi\\rho$"
         ))
     )
 

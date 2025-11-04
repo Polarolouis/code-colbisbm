@@ -41,7 +41,6 @@ result_data_frame$preferred_model <- factor(result_data_frame$preferred_model, l
 # result_data_frame <- result_data_frame %>% mutate(true_model = if (all( c(epsilon_pi >0, epsilon_rho > 0) == c(TRUE, TRUE))) print("pirho") else if (all( c(epsilon_pi >0, epsilon_rho > 0) == c(TRUE, FALSE))) print("pi") else if (all( c(epsilon_pi >0, epsilon_rho > 0) == c(F, T))) print("rho") else print("iid"))
 
 
-
 ## ----compute-table, echo = FALSE, include = FALSE-------------------------------------------------------------------------------------------------------------------
 result_data_frame <- result_data_frame %>%
     mutate(
@@ -99,15 +98,15 @@ table_df <- full_join(x = bloc_recovery_df, y = model_proportion_df)
 #| fig.height = 4,
 #| dpi=300
 levels(model_comparison_eps_pi$preferred_model) <- c(
-    "sep", "$iid$", "$\\pi$", "$\\rho$",
+    "sep", "iid", "$\\pi$", "$\\rho$",
     "$\\pi\\rho$"
 )
 levels(model_comparison_eps_rho$preferred_model) <- c(
-    "sep", "$iid$", "$\\pi$", "$\\rho$",
+    "sep", "iid", "$\\pi$", "$\\rho$",
     "$\\pi\\rho$"
 )
 levels(model_comparison_eps_pi_rho$preferred_model) <- c(
-    "$iid$", "$\\pi$", "$\\rho$",
+    "iid", "$\\pi$", "$\\rho$",
     "$\\pi\\rho$"
 )
 
@@ -166,7 +165,6 @@ dev.off()
 #     rowwise() |>
 #     mutate(across(iid_Q1:pirho_Q2, ~ ifelse(. == min(c_across(iid_Q1:pirho_Q2), na.rm = TRUE) & length(unique(c_across(iid_Q1:pirho_Q2))) > 1L, paste0("\\textbf{", ., "}"), .))) %>%
 #     ungroup()
-
 
 
 # options(knitr.kable.NA = "")

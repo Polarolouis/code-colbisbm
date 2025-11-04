@@ -217,6 +217,42 @@ design_mat <- "AAABBBBB"
 ggsave("figures/applications/baldock/baldock-iid-clust.pdf", iid_plot)
 fit_pirho_1 <- datalist$pirho.4$partition[[1]]
 
+baldock_kenya <- fit_pirho_1$A[[1]]
+
+plan("multisession")
+if (!file.exists(here("data", "baldock-full-iid.Rds"))) {
+    fit_iid_full <- estimate_colBiSBM(
+        netlist = append(baldock_matrices, list(baldock_kenya)),
+        net_id = c(names(baldock_matrices), "Baldock2011_TB+JN"),
+        colsbm_model = "iid",
+        global_opts = list(
+            verbosity = 0,
+            backend = "future"
+        ),
+        fit_opts = list(
+            max_vem_steps = 10000L
+        )
+    )
+    saveRDS(fit_iid_full, here("data", "baldock-full-iid.Rds"))
+} else {
+    fit_iid_full <- readRDS(here("data", "baldock-full-iid.Rds"))
+}
+
+
+bicl_iid_clust <- fit_iid_1$BICL + fit_iid_2$BICL
+bicl_iid_full <- fit_iid_full$best_fit$BICL
+bicl_pirho <- fit_pirho_1$BICL
+bicl_sep <- sapply(fit_iid_full$sep_BiSBM$models, function(x) x$BICL) |> sum()
+
+library("knitr")
+bicl_df <- data.frame(
+    Model = c("Separate BiSBM", "$\\pi\\rho$-colBiSBM on all networks ", "iid-colBiSBM on all networks", "iid-colBiSBM (Kenya and 4 British)"),
+    BICL = c(bicl_sep, bicl_pirho, bicl_iid_full, bicl_iid_clust)
+)
+bicl_df <- bicl_df[order(bicl_df$BICL, decreasing = TRUE), ]
+rownames(bicl_df) <- NULL
+kable(bicl_df, format = "latex", booktabs = FALSE, escape = FALSE, caption = "BICL values for different models on the Baldock et al. datasets.", label = "tab:baldock-bicl")
+
 class(fit_pirho_1) <- c("fitBipartiteSBMPop", "R6")
 fit_pirho_1$net_id <- fit_pirho_1$net_id |>
     str_replace("Baldock2011_", "Kenya-") |>
