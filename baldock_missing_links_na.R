@@ -144,7 +144,7 @@ conditions <- expand.grid(
     possible_missing_network = possible_missing_network,
     repetitions = repetitions,
     epsilon = epsilons,
-    model = c("iid", "pi", "rho", "pirho", "sep"),
+    model = c("sep"), # c("iid", "pi", "rho", "pirho", "sep"),
     missing_replacement = c(NA, 0)
 )
 
