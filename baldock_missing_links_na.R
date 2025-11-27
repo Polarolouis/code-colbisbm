@@ -190,11 +190,15 @@ results <- future_lapply(seq_len(nrow(conditions)), function(s) {
         nb_run = 1L,
         global_opts = list(backend = "no_mc")
     )
-
-    tau1 <- fit$best_fit$tau[[missing_network]][[1]]
-    alpha <- fit$best_fit$alpha
-    tau2 <- fit$best_fit$tau[[missing_network]][[2]]
-
+    if (model == "sep") {
+        tau1 <- fit$best_fit$tau[[1]][[1]]
+        alpha <- fit$best_fit$alpha
+        tau2 <- fit$best_fit$tau[[1]][[2]]
+    } else {
+        tau1 <- fit$best_fit$tau[[missing_network]][[1]]
+        alpha <- fit$best_fit$alpha
+        tau2 <- fit$best_fit$tau[[missing_network]][[2]]
+    }
     predicted_values <- c()
     Xhat <- tau1 %*% alpha %*% t(tau2)
     for (j in seq_len(nrow(missing_links))) {
