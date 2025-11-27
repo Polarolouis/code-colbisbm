@@ -185,7 +185,7 @@ results <- future_lapply(seq_len(nrow(conditions)), function(s) {
 
     fit <- colSBM::estimate_colBiSBM(
         netlist = ifelse(model == "sep", list(missing_links_matrix), matrices), # Only giving one matrix if we test sep model
-        colsbm_model = model,
+        colsbm_model = ifelse(model == "sep", "iid", model),
         net_id = names(matrices),
         nb_run = 1L,
         global_opts = list(backend = "no_mc")
