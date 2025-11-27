@@ -175,30 +175,25 @@ results <- future_lapply(seq_len(nrow(conditions)), function(s) {
     real_values <- c()
     for (j in seq_len(nrow(missing_links))) {
         real_values <- c(real_values, missing_links_matrix[missing_links$row[j], missing_links$col[j]])
-        missing_links_matrix[missing_links$row[j], missing_links$col[j]] <- ifelse(model == "sep", 0, missing_replacement)
+        missing_links_matrix[missing_links$row[j], missing_links$col[j]] <- missing_replacement
     }
 
     matrices <- append(
         complete_matrices, setNames(list(missing_links_matrix), names(baldock_matrices)[missing_network]),
         after = missing_network - 1
     )
-    if (model == "sep") {
-        fit <- sbm::estimateBipartiteSBM(netMat = missing_links_matrix, estimOptions = list(verbosity = 0))
-        alpha <- fit$connectParam$mean
-        tau1 <- fit$probMemberships$row
-        tau2 <- fit$probMemberships$col
-    } else {
-        fit <- colSBM::estimate_colBiSBM(
-            netlist = matrices,
-            colsbm_model = model,
-            net_id = names(matrices),
-            nb_run = 1L,
-            global_opts = list(backend = "no_mc")
-        )
-        tau1 <- fit$best_fit$tau[[missing_network]][[1]]
-        alpha <- fit$best_fit$alpha
-        tau2 <- fit$best_fit$tau[[missing_network]][[2]]
-    }
+
+    fit <- colSBM::estimate_colBiSBM(
+        netlist = ifelse(model == "sep", list(missing_links_matrix), matrices), # Only giving one matrix if we test sep model
+        colsbm_model = model,
+        net_id = names(matrices),
+        nb_run = 1L,
+        global_opts = list(backend = "no_mc")
+    )
+
+    tau1 <- fit$best_fit$tau[[missing_network]][[1]]
+    alpha <- fit$best_fit$alpha
+    tau2 <- fit$best_fit$tau[[missing_network]][[2]]
 
     predicted_values <- c()
     Xhat <- tau1 %*% alpha %*% t(tau2)
