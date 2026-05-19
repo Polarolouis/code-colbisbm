@@ -30,7 +30,6 @@ results_df <- results_df |>
 vgae_df <- read.csv("data/dore/baldock_vgae_metrics_per_epsilon.csv")
 
 
-
 vgae_df <- vgae_df |>
     rename(AUC = AUC, epsilon = Epsilon, possible_missing_network = Missing.Network) |>
     mutate(model = "VGAE", missing_replacement = 0) |>
@@ -51,6 +50,16 @@ ggplot(sep_vgae_df) +
 
 
 results_df <- rbind(results_df, vgae_df, sep_vgae_df)
+
+# Perfom Wilcoxon test ?
+lapply(seq(0.1, 0.8, by = 0.1), function(eps) {
+    eps_1_0 <- results_df |> filter(epsilon == eps, model %in% c("sep", "iid"), is.na(missing_replacement))
+    auc_sep <- (eps_1_0 |> filter(model == "sep"))$AUC |> as.numeric()
+    auc_iid <- (eps_1_0 |> filter(model == "iid"))$AUC |> as.numeric()
+    wilcox.test(auc_sep, auc_iid, alternative = "l")
+})
+
+
 
 auc_df <-
     results_df |>
