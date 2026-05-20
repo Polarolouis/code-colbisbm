@@ -43,4 +43,4 @@ case $ARGID in
     ;;
 esac
 
-Rscript "${APPLICATIONS_DIR}/simulations_computation_time.R.R" $MODE $TEST_NULL &>> logs/$JOB_NAME.$SGE_TASK_ID
+Rscript "${APPLICATIONS_DIR}/simulations_computation_time.R" $MODE $TEST_NULL &>> logs/$JOB_NAME.$SGE_TASK_ID
