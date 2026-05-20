@@ -23,7 +23,7 @@ check_identifiability_iid <- function(nr, nc, Q, alpha, pi, rho, call = caller_e
         cli::cli_abort(c("x" = "All values of {.code t(pi) %*% alpha} must be unique !"))
     }
 
-    cli::cli_alert_success("Identifiability passed !")
+    cli::cli_alert_success("Identifiability for iid model passed !")
 }
 
 check_identifiability_pirho <- function(nr, nc, Q, alpha, pis, rhos, call = caller_env()) {
@@ -54,7 +54,7 @@ check_identifiability_pirho <- function(nr, nc, Q, alpha, pis, rhos, call = call
         net_fail_row_identif <- which(row_identif_vec)
         cli::cli_abort(c(
             "x" = "All marginals on {.code alpha[[m]] %*% rho[[m]]} must be different.",
-            "i" = "Currently {no(qty(length(net_fail_row_identif)))} network{?s} do not respect the condition: {.val {net_fail_row_identif}}."
+            "i" = "Currently {cli::no(cli::qty(length(net_fail_row_identif)))} network{?s} do not respect the condition: {.val {net_fail_row_identif}}."
         ))
     }
 
@@ -65,11 +65,11 @@ check_identifiability_pirho <- function(nr, nc, Q, alpha, pis, rhos, call = call
         net_fail_col_identif <- which(col_identif_vec)
         cli::cli_abort(c(
             "x" = "All marginals on {.code t(pis[[m]]) %*% alpha[[m]]} must be different.",
-            "i" = "Currently {no(qty(length(net_fail_col_identif)))} network{?s} do not respect the condition: {.val {net_fail_col_identif}}."
+            "i" = "Currently {cli::no(cli::qty(length(net_fail_col_identif)))} network{?s} do not respect the condition: {.val {net_fail_col_identif}}."
         ))
     }
     if (any(duplicated(as.vector(alpha)))) {
         cli::cli_abort(c("x" = "All entries of `alpha` must be unique !"))
     }
-    cli::cli_alert_success("Identifiability passed !")
+    cli::cli_alert_success("Identifiability for pirho model passed !")
 }
