@@ -83,13 +83,13 @@ datasets_pirho <- lapply(seq_len(nrow(conditions)), function(row_idx) {
     message(c("Generating dataset for Q = (", Q1, ",", Q2, "), rep = ", rep))
 
     pi <- exp(-1 / seq(Q1))
-    if (TEST_NULL_PROP && Q[1] > 2) {
+    if (TEST_NULL_PROP && Q1 > 2) {
         # If more than 2 clusters introducing a null block
         pi[length(pi)] <- 0
     }
     pi <- pi / sum(pi)
     rho <- exp(-1 / rev(seq(Q2)))
-    if (TEST_NULL_PROP && Q[2] > 2) {
+    if (TEST_NULL_PROP && Q1 > 2) {
         # If more than 2 clusters introducing a null block
         rho[1] <- 0
     }
