@@ -1,4 +1,4 @@
-devtools::load_all("../colSBM")
+library("colSBM")
 library("future")
 library("futurize")
 library("future.callr")
