@@ -48,7 +48,8 @@ check_identifiability_pirho <- function(nr, nc, Q, alpha, pis, rhos, call = call
     })
 
     row_identif_vec <- sapply(seq(M), function(m) {
-        any(duplicated(as.vector(alpha_ms[[m]] %*% rhos[[m]])))
+        curr_rho <- rhos[[m]][rhos[[m]] > 0]
+        any(duplicated(as.vector(alpha_ms[[m]] %*% curr_rho)))
     })
     if (any(row_identif_vec)) {
         net_fail_row_identif <- which(row_identif_vec)
@@ -59,7 +60,8 @@ check_identifiability_pirho <- function(nr, nc, Q, alpha, pis, rhos, call = call
     }
 
     col_identif_vec <- sapply(seq(M), function(m) {
-        any(duplicated(as.vector(t(pis[[m]]) %*% alpha_ms[[m]])))
+        curr_pi <- pis[[m]][pis[[m]] > 0]
+        any(duplicated(as.vector(t(curr_pi) %*% alpha_ms[[m]])))
     })
     if (any(col_identif_vec)) {
         net_fail_col_identif <- which(col_identif_vec)

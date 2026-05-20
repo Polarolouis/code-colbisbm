@@ -89,7 +89,7 @@ datasets_pirho <- lapply(seq_len(nrow(conditions)), function(row_idx) {
     }
     pi <- pi / sum(pi)
     rho <- exp(-1 / rev(seq(Q2)))
-    if (TEST_NULL_PROP && Q1 > 2) {
+    if (TEST_NULL_PROP && Q2 > 2) {
         # If more than 2 clusters introducing a null block
         rho[1] <- 0
     }
