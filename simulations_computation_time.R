@@ -120,7 +120,7 @@ if (model != "iid") {
 options("future.globals.maxSize" = Inf)
 nbCores <- parallelly::availableCores(omit = 1L)
 nb_run <- 3L
-plan(tweak("multisession", workers = nbCores))
+# plan(tweak("multisession", workers = nbCores))
 
 results_list <- lapply(seq_len(nrow(conditions)), function(row_idx) {
     Q1 <- conditions[row_idx, "Q1"]
@@ -138,7 +138,8 @@ results_list <- lapply(seq_len(nrow(conditions)), function(row_idx) {
     saveRDS(res_df, file = file.path(temp_path, paste0("condition_", row_idx, "_on_", nrow(conditions), ".Rds")))
 
     return(res_df)
-}) |> futurize(seed = TRUE)
+})
+# |> futurize(seed = TRUE)
 
 results_df <- do.call("rbind", results_list)
 
