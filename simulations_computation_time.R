@@ -120,7 +120,7 @@ if (model != "iid") {
 options("future.globals.maxSize" = Inf)
 nbCores <- parallelly::availableCores(omit = 1L)
 nb_run <- 3L
-# plan(tweak("multisession", workers = nbCores))
+plan(tweak("multisession", workers = nbCores))
 
 results_list <- lapply(seq_len(nrow(conditions)), function(row_idx) {
     Q1 <- conditions[row_idx, "Q1"]
@@ -130,7 +130,7 @@ results_list <- lapply(seq_len(nrow(conditions)), function(row_idx) {
 
     collection <- datasets[[row_idx]]
     start_time <- Sys.time()
-    fit_res <- colSBM::estimate_colBiSBM(netlist = collection, colsbm_model = model, global_opts = list(verbosity = 3L, backend = "no_mc"), nb_run = nb_run)
+    fit_res <- estimate_colBiSBM(netlist = collection, colsbm_model = model, global_opts = list(verbosity = 3L, backend = "no_mc"), nb_run = nb_run)
     time_taken <- difftime(Sys.time(), start_time, units = "secs")
 
     res_df <- data.frame(model = model, Q1 = Q1, Q2 = Q2, rep = rep, duration = time_taken, correct_Q1 = fit_res$best_fit$Q[1] == Q1, correct_Q2 = fit_res$best_fit$Q[2] == Q2)
@@ -138,8 +138,7 @@ results_list <- lapply(seq_len(nrow(conditions)), function(row_idx) {
     saveRDS(res_df, file = file.path(temp_path, paste0("condition_", row_idx, "_on_", nrow(conditions), ".Rds")))
 
     return(res_df)
-})
-# |> futurize(seed = TRUE)
+}) |> futurize(seed = TRUE)
 
 results_df <- do.call("rbind", results_list)
 
