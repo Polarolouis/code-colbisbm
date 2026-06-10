@@ -5,7 +5,7 @@
 #$ -m besa
 #$ -q long.q
 #$ -t 1-3
-#$ -pe thread 1
+#$ -pe thread 64
 #$ -M louis.lacoste+migale@agroparistech.fr
 #$ -o logs/$JOB_NAME
 #$ -e logs/$JOB_NAME
