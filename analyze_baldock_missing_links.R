@@ -11,7 +11,7 @@ library("stringr")
 library("here")
 library("tikzDevice")
 library("forcats")
-options(tikzDocumentDeclaration = "\\documentclass[10pt]{standalone}")
+options(tikzDocumentDeclaration = "\\documentclass[8pt]{standalone}")
 # options(
 #     tikzLatexPackages = c(getOption("tikzLatexPackages"), "\\usepackage{tikz}")
 # )
@@ -60,7 +60,6 @@ lapply(seq(0.1, 0.8, by = 0.1), function(eps) {
 })
 
 
-
 auc_df <-
     results_df |>
     mutate_at(vars(model), as.factor) |>
@@ -91,7 +90,9 @@ levels(auc_df[["model"]]) <- levels(auc_df[["model"]]) |>
     # ylim(0.8, 0.91) +
     theme_minimal() +
     scale_y_continuous(n.breaks = 5) +
-    theme(legend.position = "bottom"))
+    theme(
+        legend.position = "bottom"
+    ))
 
 (auc_plot_missing_links <- ggplot(auc_df |> filter(missing_replacement == "Missing Links")) +
     aes(y = AUC, x = as.factor(epsilon), fill = model, color = model) +
@@ -114,9 +115,10 @@ if (!dir.exists(fig_folder)) {
     dir.create(fig_folder, recursive = TRUE)
 }
 
+
 tikz(
     file = file.path(fig_folder, "auc-model.tex"), width = 6.5,
-    height = 3,
+    height = 4,
     standAlone = TRUE
 )
 print(auc_plot)
