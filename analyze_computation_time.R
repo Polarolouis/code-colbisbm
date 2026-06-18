@@ -1,9 +1,18 @@
 library(here)
+library(tidyverse)
+library(latex2exp)
 save_path <- "simulations/computation_time"
 
-rds_files <- list.files(save_path, include.dirs = FALSE, pattern = "Rds")
+M <- 3
+nr <- nc <- 300
 
-computation_complex_time_df <- do.call("rbind", lapply(file.path(save_path, rds_files), readRDS)) %>% mutate(model = ifelse(model == "pirho", TeX("$\\pi\\rho$"), model))
+pattern <- paste0("M_", M, "_nr_", nr, "_nc_", nc)
+
+rds_files <- list.files(save_path, include.dirs = FALSE, pattern = pattern)
+
+computation_complex_time_df <- do.call("rbind", lapply(file.path(save_path, rds_files), readRDS))
+# %>% mutate(model = TeX(model))
+
 # computation_complex_time_df <- readRDS(file.path(save_path, rds_files[1]))
 library(ggplot2)
 library(ggrepel)
@@ -31,17 +40,19 @@ library(latex2exp)
 (q1_comp_plot <- ggplot(computation_complex_time_df %>% filter(Q2 == 8), aes(x = Q1, fill = model)) +
     geom_boxplot(aes(y = duration, group = interaction(Q1, model)), notch = TRUE) +
     geom_line(data = avg_computation %>% filter(Q2 == 8), aes(y = avg, color = model)) +
-    scale_fill_manual(values = model_colors[c(1, 4)]) +
-    scale_color_manual(values = model_colors[c(1, 4)]) +
+    scale_fill_manual(values = model_colors[c(1, 4)], labels = c("iid", TeX("$\\pi\\rho$-colBiSBM"))) +
+    scale_color_manual(values = model_colors[c(1, 4)], labels = c("iid", TeX("$\\pi\\rho$-colBiSBM"))) +
+    scale_x_continuous(breaks = seq(2, 8)) +
     labs(fill = "Model", color = "Model", y = "Time (s)", x = TeX("$Q_1$")) +
-    ggtitle(TeX("$n_1=n_2=300, M=3$")) +
+    ggtitle(TeX(paste0("$n_1=n_2=", nr, ",M=", M, "$"))) +
     theme_minimal())
 
 (q2_comp_plot <- ggplot(computation_complex_time_df %>% filter(Q1 == 8), aes(x = Q2, fill = model)) +
     geom_boxplot(aes(y = duration, group = interaction(Q2, model)), notch = TRUE) +
     geom_line(data = avg_computation %>% filter(Q1 == 8), aes(y = avg, color = model)) +
-    scale_fill_manual(values = model_colors[c(1, 4)]) +
-    scale_color_manual(values = model_colors[c(1, 4)]) +
+    scale_fill_manual(values = model_colors[c(1, 4)], labels = c("iid", TeX("$\\pi\\rho$-colBiSBM"))) +
+    scale_color_manual(values = model_colors[c(1, 4)], labels = c("iid", TeX("$\\pi\\rho$-colBiSBM"))) +
+    scale_x_continuous(breaks = seq(2, 8)) +
     labs(fill = "Model", color = "Model", y = "Time (s)", x = TeX("$Q_2$")) +
     theme_minimal())
 
@@ -60,7 +71,7 @@ width_tikz <- 12
 height_tikz <- 3
 
 pdf(
-    file = file.path(output_tikz_folder, "computation-time.pdf"), width = width_tikz
+    file = file.path(output_tikz_folder, paste0("computation-time-", pattern, ".pdf")), width = width_tikz
 )
 q1_comp_plot + q2_comp_plot + plot_layout(guides = "collect", axis_titles = "collect")
 dev.off()
