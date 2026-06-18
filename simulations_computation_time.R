@@ -29,7 +29,7 @@ M <- 10
 nr <- 100
 nc <- 100
 
-base_filename <- paste0("computation_time_model_", model, "_Qmax_", max_Q, "_M_", M, "_nr_", nr, "_nc_", nc, epoch)
+base_filename <- paste0("computation_time_model_", model, "_Qmax_", max_Q, "_M_", M, "_nr_", nr, "_nc_", nc, "_", epoch)
 
 save_file <- file.path(save_path, paste0(base_filename, ".Rds"))
 temp_path <- file.path(save_path, paste0("tmp", base_filename))
