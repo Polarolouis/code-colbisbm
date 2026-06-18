@@ -25,7 +25,7 @@ if (length(args) == 2) {
 
 nb_rep <- 3
 max_Q <- 8
-M <- 3
+M <- 10
 
 base_filename <- paste0("computation_time_model_", model, "_Qmax_", max_Q, "_M_", M, "_", epoch)
 
