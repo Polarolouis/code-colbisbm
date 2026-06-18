@@ -26,18 +26,16 @@ if (length(args) == 2) {
 nb_rep <- 3
 max_Q <- 8
 M <- 10
+nr <- 100
+nc <- 100
 
-base_filename <- paste0("computation_time_model_", model, "_Qmax_", max_Q, "_M_", M, "_", epoch)
+base_filename <- paste0("computation_time_model_", model, "_Qmax_", max_Q, "_M_", M, "_nr_", nr, "_nc_", nc, epoch)
 
 save_file <- file.path(save_path, paste0(base_filename, ".Rds"))
 temp_path <- file.path(save_path, paste0("tmp", base_filename))
 if (!dir.exists(temp_path)) {
     dir.create(temp_path)
 }
-
-
-nr <- 300
-nc <- 300
 
 seq_Q <- seq(2, max_Q)
 
