@@ -25,7 +25,7 @@ if (length(args) == 2) {
 
 nb_rep <- 3
 max_Q <- 8
-M <- 10
+M <- 3
 nr <- 100
 nc <- 100
 
