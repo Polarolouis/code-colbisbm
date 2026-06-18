@@ -67,11 +67,11 @@ if (!dir.exists(output_tikz_folder)) {
     dir.create(output_tikz_folder, recursive = TRUE)
 }
 
-width_tikz <- 12
+width_tikz <- 10
 height_tikz <- 3
 
 pdf(
-    file = file.path(output_tikz_folder, paste0("computation-time-", pattern, ".pdf")), width = width_tikz
+    file = file.path(output_tikz_folder, paste0("computation-time-", pattern, ".pdf")), width = width_tikz, height = height_tikz
 )
 q1_comp_plot + q2_comp_plot + plot_layout(guides = "collect", axis_titles = "collect")
 dev.off()
