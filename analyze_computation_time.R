@@ -4,7 +4,7 @@ library(latex2exp)
 save_path <- "simulations/computation_time"
 
 M <- 3
-nr <- nc <- 300
+nr <- nc <- 100
 
 pattern <- paste0("M_", M, "_nr_", nr, "_nc_", nc)
 
