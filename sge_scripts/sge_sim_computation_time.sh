@@ -4,43 +4,40 @@
 #$ -N comp_time
 #$ -m besa
 #$ -q long.q
-#$ -t 1-3
+#$ -t 1-8
 #$ -pe thread 64
 #$ -M louis.lacoste+migale@agroparistech.fr
 #$ -o logs/$JOB_NAME
 #$ -e logs/$JOB_NAME
 
-# Creating log directory if it doesn't exists
 BASE_DIR="/home/$USER/work/code-colbisbm"
-LOG_DIR=$(echo "$BASE_DIR/logs")
+LOG_DIR="$BASE_DIR/logs"
 
-if [ ! -d "$LOG_DIR" ]; then
-    mkdir -p $LOG_DIR
-fi
+mkdir -p "$LOG_DIR"
 
-# Finding directory
-APPLICATIONS_DIR=$(echo "$BASE_DIR")
+APPLICATIONS_DIR="$BASE_DIR"
 
-echo $APPLICATIONS_DIR
+echo "$APPLICATIONS_DIR"
 
-ARGID=$(($SGE_TASK_ID % 3))
+# Convert task id (1-8) to index (0-7)
+IDX=$((SGE_TASK_ID - 1))
 
-case $ARGID in
-    0)
-    echo -n "Model will iid"
-    MODE="iid"
-    TEST_NULL=FALSE
-    ;;
-    1)
-    echo -n "Model will be pirho with no null block"
-    MODE="pirho"
-    TEST_NULL=FALSE
-    ;;
-    2)
-    echo -n "Model will be pirho with null blocks!"
-    MODE="pirho"
-    TEST_NULL=TRUE
-    ;;
-esac
+# Factor levels
+MODELS=("iid" "pirho")
+MS=(3 10)
+NS=(100 300)
 
-Rscript "${APPLICATIONS_DIR}/simulations_computation_time.R" $MODE $TEST_NULL &>> logs/$JOB_NAME.$SGE_TASK_ID
+# Decode indices
+MODEL=${MODELS[$((IDX / 4))]}
+M=${MS[$(((IDX % 4) / 2))]}
+N=${NS[$((IDX % 2))]}
+
+echo "Model = $MODEL"
+echo "M = $M"
+echo "n = $N"
+
+Rscript "${APPLICATIONS_DIR}/simulations_computation_time.R" \
+    --model "$MODEL" \
+    --nb-networks "$M" \
+    --nb-nodes "$N" \
+    &>> "logs/$JOB_NAME.$SGE_TASK_ID"

@@ -14,20 +14,38 @@ epoch <- as.integer(Sys.time())
 args <- commandArgs(trailingOnly = TRUE)
 
 model <- "iid"
-TEST_NULL_PROP <- FALSE
+TEST_NULL_PROP <- TRUE
 
-if (length(args) == 2) {
-    model <- args[1]
-    TEST_NULL_PROP <- ifelse(args[2], TRUE, FALSE)
+
+library(argparse)
+
+# Create parser object
+
+if (argparse:::detects_python()) {
+    parser <- ArgumentParser(description = "Perform computational complexity simulation")
+
+    # Define options
+    parser$add_argument("-m", "--model", choices = c("iid", "pirho"), default = "iid", help = "The model for which to perform testing [default %(default)s]")
+    parser$add_argument("-N", "--repetitions", type = "integer", default = 3, metavar = "N", help = "The number of repetitions per condition [default %(default)s]")
+    parser$add_argument("-M", "--nb-networks", type = "integer", default = 3, metavar = "M", help = "The number of networks in the collection [default %(default)s]")
+    parser$add_argument("-n", "--nb-nodes", type = "integer", default = 100, metavar = "n", help = "The number of nodes for both rows and columns per network [default %(default)s]")
+
+    # Parse arguments
+    args <- parser$parse_args()
 } else {
-    message("No or incorrect sim params given, defaulting to model : ", model, " and", ifelse(TEST_NULL_PROP, "", " not"), " testing with null block props.")
+    stop("Python or argparse missing ! Can't parse arguments")
 }
 
-nb_rep <- 3
+
+
+nb_rep <- args$repetitions
 max_Q <- 8
-M <- 3
-nr <- 100
-nc <- 100
+model <- args$model
+M <- args$nb_networks
+nr <- nc <- args$nb_nodes
+
+message("Simulation for ", M, " networks, ", model, " model, ", nb_rep, " repetitions with ", nr, " nodes on rows and columns.")
+
 
 base_filename <- paste0("computation_time_model_", model, "_Qmax_", max_Q, "_M_", M, "_nr_", nr, "_nc_", nc, "_", epoch)
 
