@@ -4,7 +4,7 @@ library(latex2exp)
 save_path <- "simulations/computation_time"
 
 M <- 10
-nr <- nc <- 100
+nr <- nc <- 300
 
 pattern <- paste0("M_", M, "_nr_", nr, "_nc_", nc)
 
@@ -42,6 +42,7 @@ library(latex2exp)
     scale_fill_manual(values = model_colors[c(1, 4)], drop = FALSE, labels = c("iid", TeX("$\\pi\\rho$-colBiSBM"))) +
     scale_color_manual(values = model_colors[c(1, 4)], drop = FALSE, labels = c("iid", TeX("$\\pi\\rho$-colBiSBM"))) +
     scale_x_continuous(breaks = seq(2, 8)) +
+    scale_y_continuous(n.breaks = 10) +
     labs(fill = "Model", color = "Model", y = "Time (s)", x = TeX("$Q_1$")) +
     ggtitle(TeX(paste0("$n_1=n_2=", nr, ",M=", M, "$"))) +
     theme_minimal())
@@ -52,6 +53,7 @@ library(latex2exp)
     scale_fill_manual(values = model_colors[c(1, 4)], drop = FALSE, labels = c("iid", TeX("$\\pi\\rho$-colBiSBM"))) +
     scale_color_manual(values = model_colors[c(1, 4)], drop = FALSE, labels = c("iid", TeX("$\\pi\\rho$-colBiSBM"))) +
     scale_x_continuous(breaks = seq(2, 8)) +
+    scale_y_continuous(n.breaks = 10) +
     labs(fill = "Model", color = "Model", y = "Time (s)", x = TeX("$Q_2$")) +
     theme_minimal())
 
